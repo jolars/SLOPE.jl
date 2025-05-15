@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://jolars.github.io/SLOPE.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
-[![Build Status](https://github.com/jolars/SLOPE.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
 
 Sorted L-One Penalized Estimation
 
