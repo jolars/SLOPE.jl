@@ -18,7 +18,7 @@ using SparseArrays
   @test res.β[1] ≈ β
 end
 
-@testset "Basic" begin
+@testset "Dense sparse agreement" begin
   n = 20
   p = 2
   m = 1
