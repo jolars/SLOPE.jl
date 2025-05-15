@@ -37,6 +37,6 @@ end
   res_sparse = slope(x, y)
   res_dense = slope(Matrix(x), y)
 
-  @test maximum(abs.(maximum.(res_dense.β - res_sparse.β))) < 1e-10
+  @test isapprox(res_dense.β, res_sparse.β)
 end
 
