@@ -22,9 +22,9 @@ SLOPE is a Julia package for Sorted L1 Penalized Estimation (SLOPE), which
 is a type of regularized regression. SLOPE minimizes the following
 objective function:
 
-$$
-\frac{1}{n} \sum_{i=1}^n f(y_i, x_i^\intercal \beta) + \sum_{j=1}^p \lambda_j |\beta_{(j)}|,
-$$
+```math
+\frac{1}{n} \sum_{i=1}^n f(y_i, x_i^\intercal \beta) + \sum_{j=1}^p \lambda_j |\beta_{(j)}|.
+```
 
 ## Contributing
 
