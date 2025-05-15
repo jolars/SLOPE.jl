@@ -28,16 +28,8 @@ end
 
   path_length = 3
 
-  alpha = Float64[]
-  lambda = Float64[]
-
-  coef_vals = Float64[]
-  coef_rows = Int[]
-  coef_cols = Int[]
-  nnz = Int[]
-
-  res_sparse = slope(x, y, α=alpha, λ=lambda)
-  res_dense = slope(Matrix(x), y, α=alpha, λ=lambda)
+  res_sparse = slope(x, y)
+  res_dense = slope(Matrix(x), y)
 
   @test maximum(abs.(maximum.(res_dense.β - res_sparse.β))) < 1e-10
 end
