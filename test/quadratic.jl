@@ -3,7 +3,6 @@ using Test
 using SparseArrays
 using Random
 
-# Simple design
 @testset "Simple design" begin
   n = 3
   p = 2
@@ -22,8 +21,9 @@ using Random
   n = 20
   p = 2
   m = 1
+end
 
-  # Dense and sparse agreement
+@testset "Sparse and dense agreement" begin
   Random.seed!(58)
 
   x = SparseArrays.sprand(n, p, 0.5)
