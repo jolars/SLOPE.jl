@@ -1,0 +1,25 @@
+name = "SLOPE"
+uuid = "e3f974f6-674d-4b8e-a3d1-5850677db852"
+authors = ["Johan Larsson <jolars@posteo.com> and contributors"]
+version = "1.0.0"
+
+[deps]
+CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
+FilePathsBase = "48062228-2e41-5def-b9a4-89aafe57970f"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+slope_jll = "baac1969-1582-5600-b38b-7408c9d44009"
+
+[compat]
+Aqua = "0.8"
+CxxWrap = "0.17.0"
+SparseArrays = "1.11.0"
+Test = "1.6"
+julia = "1.6"
+slope_jll = "1.0.0"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "Test"]
