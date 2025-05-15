@@ -1,6 +1,7 @@
 using SLOPE
 using Test
 using SparseArrays
+using Random
 
 @testset "Simple design" begin
   n = 3
@@ -22,6 +23,8 @@ end
   n = 20
   p = 2
   m = 1
+
+  Random.seed!(58)
 
   x = SparseArrays.sprand(n, p, 0.5)
   y = rand(n)
