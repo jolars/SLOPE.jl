@@ -2,6 +2,22 @@ using SLOPE
 using Test
 using SparseArrays
 
+@testset "Simple design" begin
+  n = 3
+  p = 2
+
+  x = [1.1 2.3; 0.5 1.5; 0.5 0.2]
+  β = [1.0, 2.0]
+  y = x * β
+
+  alpha = Float64[1e-12]
+  lambda = [1.0, 1.0]
+
+  res = slope(x, y, α=alpha, λ=lambda)
+
+  @test res.β[1] ≈ β
+end
+
 @testset "Basic" begin
   n = 20
   p = 2
