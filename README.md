@@ -1,4 +1,4 @@
-# SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.svg' align="right" height="139" /></a>
+# SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.png' align="right" height="139" /></a>
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://jolars.github.io/SLOPE.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
