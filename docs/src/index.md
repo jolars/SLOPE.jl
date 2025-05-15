@@ -38,7 +38,3 @@ That being said, if you find any bugs in the Julia wrapper
 or there are features in the C++ library that are yet to
 be implemented in the Julia wrapper, then please open an issue
 in this repository.
-
-```
-
-```
