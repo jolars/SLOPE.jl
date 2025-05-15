@@ -11,7 +11,7 @@ using Random
   β = [1.0, 2.0]
   y = x * β
 
-  alpha = Float64[1e-12]
+  alpha = 1e-12
   lambda = [1.0, 1.0]
 
   res = slope(x, y, α=alpha, λ=lambda)

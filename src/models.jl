@@ -123,7 +123,7 @@ encouraging both sparsity and grouping of features.
 - `y`: Response variable (vector)
 
 # Keyword Arguments
-- `α::Union{AbstractVector,Nothing}=nothing`: Alpha sequence for regularization path
+- `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path
 - `λ::Union{AbstractVector,Nothing}=nothing`: Lambda sequence for regularization path
 - `fit_intercept::Bool=true`: Whether to fit an intercept term
 - `loss::String="quadratic"`: Type of loss function
@@ -148,7 +148,7 @@ A `NamedTuple` containing:
 function slope(
   x::Union{AbstractMatrix,SparseMatrixCSC},
   y::AbstractVector;
-  α::Union{AbstractVector,Nothing}=nothing,
+  α::Union{AbstractVector,Real,Nothing}=nothing,
   λ::Union{AbstractVector,Nothing}=nothing,
   fit_intercept::Bool=true,
   loss::String="quadratic",
@@ -173,6 +173,8 @@ function slope(
 
   if isnothing(α)
     α = Float64[]
+  elseif isa(α, Real)
+    α = [α]
   end
 
   if isnothing(λ)
