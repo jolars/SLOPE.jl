@@ -11,7 +11,7 @@ slope_jll = "baac1969-1582-5600-b38b-7408c9d44009"
 [compat]
 Aqua = "0.8"
 CxxWrap = "0.17.0"
-SparseArrays = "1.11.0"
+SparseArrays = "1.10.0"
 Test = "1.6"
 julia = "1.6"
 slope_jll = "1.0.0"
