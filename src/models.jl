@@ -165,7 +165,12 @@ function slope(
 )
   n, p = size(x)
 
-  m = 1 # FIXME: This should be the number of groups
+  m = 1
+
+  if loss == "multinomial"
+    m = max(y) - 1
+    y .-= 1
+  end
 
   if isnothing(max_clusters)
     max_clusters = n + 1
