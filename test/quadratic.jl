@@ -26,6 +26,9 @@ end
 @testset "Sparse and dense agreement" begin
   Random.seed!(58)
 
+  n = 100
+  p = 2
+
   x = SparseArrays.sprand(n, p, 0.5)
   y = rand(n)
 
