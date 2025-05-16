@@ -15,6 +15,7 @@ end
 include("models.jl")
 
 export slope
+export SlopeFit
 
 end
 

@@ -18,6 +18,32 @@ struct SlopeParameters
   α_min_ratio::Real
 end
 
+"""
+    SlopeFit
+
+A structure containing the results of fitting a SLOPE model.
+
+# Fields
+
+- `intercepts::Vector{Vector{Float64}}`: A vector of intercept vectors along the regularization path.
+  For each point in the path, contains a vector of length `m` with class-specific intercepts.
+- `coefficients::Vector{SparseMatrixCSC{Float64,Int}}`: A vector of sparse coefficient matrices 
+  along the regularization path. Each matrix is of size `p×m` where `p` is the number of 
+  predictors and `m` is the number of response classes (1 for regression).
+- `α::Vector{Float64}`: The alpha values used at each point of the regularization path.
+- `λ::Vector{Float64}`: The lambda values used at each point of the regularization path.
+- `m::Int`: The number of response classes (1 for regression, >1 for multinomial).
+- `loss::String`: The loss function used in the model fitting process.
+"""
+struct SlopeFit
+  intercepts::Vector{Vector{Float64}}
+  coefficients::Vector{SparseMatrixCSC{Float64,Int}}
+  α::Vector{Float64}
+  λ::Vector{Float64}
+  m::Int
+  loss::String
+end
+
 function fitslope(
   x::AbstractMatrix,
   y,
@@ -236,6 +262,15 @@ function slope(
   ind = 1
 
   coefs = []
+  intercept_vectors = Vector{Vector{Float64}}()
+
+  if !isempty(intercepts)
+    # Reshape into a matrix and convert each row to a vector
+    intercept_matrix = reshape(intercepts, m, :)'  # path_length × m matrix
+    for i in 1:size(intercept_matrix, 1)
+      push!(intercept_vectors, intercept_matrix[i, :])
+    end
+  end
 
   for i in eachindex(nnz)
     if ind > nnz[i]
@@ -250,5 +285,12 @@ function slope(
     ind = nnz[i] + 1
   end
 
-  (β=coefs, β0=intercepts, α=alpha_out, λ=lambda_out)
+  SlopeFit(
+    intercept_vectors,
+    coefs,
+    alpha_out,
+    lambda_out,
+    m,
+    loss,
+  )
 end

@@ -46,14 +46,14 @@ lambda = [2.128045, 1.833915, 1.644854]
     α=α,
     tol=1e-7)
 
-  coefs = fit.β[1]
+  coefs = fit.coefficients[1]
 
   @test isapprox(coefs, coef_target, atol=1e-6)
 end
 
 @testset "Intercept, no standardization" begin
   coef_target = [1.2748806, 0.0, 0.2062611]
-  intercept_target = 0.3184528
+  intercept_target = [0.3184528]
 
   fit = slope(x, y;
     λ=lambda,
@@ -64,8 +64,8 @@ end
     α=α,
     tol=1e-7)
 
-  coefs = fit.β[1]
-  intercept = fit.β0[1]
+  coefs = fit.coefficients[1]
+  intercept = fit.intercepts[1]
 
   @test isapprox(intercept, intercept_target, atol=1e-4)
 end

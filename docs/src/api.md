@@ -3,4 +3,5 @@
 ```@docs
 SLOPE.SLOPE
 SLOPE.slope
+SLOPE.SlopeFit
 ```

@@ -16,7 +16,7 @@ using Random
 
   res = slope(x, y, α=alpha, λ=lambda)
 
-  @test res.β[1] ≈ β
+  @test res.coefficients[1] ≈ β
 
   n = 20
   p = 2
@@ -37,6 +37,6 @@ end
   res_sparse = slope(x, y)
   res_dense = slope(Matrix(x), y)
 
-  @test isapprox(res_dense.β, res_sparse.β)
+  @test isapprox(res_dense.coefficients, res_sparse.coefficients)
 end
 
