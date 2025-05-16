@@ -11,6 +11,10 @@ using Aqua
     include("logistic.jl")
   end
 
+  @testset "Multinomial Logistic" begin
+    include("multinomial.jl")
+  end
+
   @testset "Aqua" begin
     Aqua.test_all(SLOPE)
   end

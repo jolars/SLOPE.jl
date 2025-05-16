@@ -34,6 +34,8 @@ A structure containing the results of fitting a SLOPE model.
 - `λ::Vector{Float64}`: The lambda values used at each point of the regularization path.
 - `m::Int`: The number of response classes (1 for regression, >1 for multinomial).
 - `loss::String`: The loss function used in the model fitting process.
+- `classes::Union{Vector,Nothing}`: A vector of unique class labels for the
+  response variable. This is `nothing` for regression models (continuous responses).
 """
 struct SlopeFit
   intercepts::Vector{Vector{Float64}}
@@ -42,6 +44,7 @@ struct SlopeFit
   λ::Vector{Float64}
   m::Int
   loss::String
+  classes::Union{Vector,Nothing}
 end
 
 function fitslope(
@@ -193,10 +196,21 @@ function slope(
 
   m = 1
 
+  y = convert(Array{Float64}, y)
+
   if loss == "multinomial"
-    m = max(y) - 1
-    y .-= 1
+    unique_classes = sort(unique(y))
+    n_classes = length(unique_classes)
+    m = n_classes
+
+    # Create a mapping from original classes to 0-based consecutive integers
+    class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
+
+    # Transform input classes using the mapping
+    y = [class_map[class] for class in y]
   end
+
+  y = convert(Array{Float64}, y)
 
   if isnothing(max_clusters)
     max_clusters = n + 1
@@ -213,7 +227,7 @@ function slope(
   end
 
   if isnothing(α_min_ratio)
-    α_min_ratio = n > p ? 1e-2 : 1e-4
+    α_min_ratio = n > p * m ? 1e-2 : 1e-4
   end
 
   params = SlopeParameters(
@@ -243,6 +257,9 @@ function slope(
 
   alpha_out = Float64[]
   lambda_out = Float64[]
+
+  println(λ)
+  println(y)
 
   fitslope(
     x,
@@ -285,6 +302,8 @@ function slope(
     ind = nnz[i] + 1
   end
 
+  original_classes = loss == "multinomial" ? unique_classes : nothing
+
   SlopeFit(
     intercept_vectors,
     coefs,
@@ -292,5 +311,6 @@ function slope(
     lambda_out,
     m,
     loss,
+    original_classes
   )
 end
