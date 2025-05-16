@@ -15,6 +15,10 @@ using Aqua
     include("multinomial.jl")
   end
 
+  @testset "Plots" begin
+    include("plots.jl")
+  end
+
   @testset "Aqua" begin
     Aqua.test_all(SLOPE)
   end

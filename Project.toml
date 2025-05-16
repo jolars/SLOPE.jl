@@ -3,12 +3,18 @@ uuid = "e3f974f6-674d-4b8e-a3d1-5850677db852"
 authors = ["Johan Larsson <jolars@posteo.com> and contributors"]
 version = "1.0.0"
 
+[extensions]
+PlotSLOPE = "Plots"
+
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 slope_jll = "baac1969-1582-5600-b38b-7408c9d44009"
+
+[weakdeps]
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
 Aqua = "0.8"
@@ -17,12 +23,13 @@ LinearAlgebra = "1.11.0"
 Random = "1.10.9"
 SparseArrays = "1.10.0"
 Test = "1.6"
-julia = "1.6"
+julia = "1.9"
 slope_jll = "1.0.0"
+Plots = "1.40.13"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "Test"]
+test = ["Aqua", "Test", "Plots"]
