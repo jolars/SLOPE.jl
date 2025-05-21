@@ -105,11 +105,13 @@ function fitslope(
   alpha_out,
   lambda_out,
 )
-  x_rows, x_cols, x_vals = findnz(x)
+  x_rows = x.rowval
+  x_cols = x.colptr
+  x_vals = x.nzval
 
   SLOPE.fit_slope_sparse(
-    x_rows,
     x_cols,
+    x_rows,
     x_vals,
     y,
     α,
@@ -201,7 +203,7 @@ function slope(
   if loss == "multinomial"
     unique_classes = sort(unique(y))
     n_classes = length(unique_classes)
-    m = n_classes
+    m = n_classes - 1
 
     # Create a mapping from original classes to 0-based consecutive integers
     class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
@@ -258,9 +260,6 @@ function slope(
   alpha_out = Float64[]
   lambda_out = Float64[]
 
-  println(λ)
-  println(y)
-
   fitslope(
     x,
     y,
@@ -297,7 +296,7 @@ function slope(
     end
 
     rng = ind:nnz[i]
-    coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng])
+    coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], p, m)
     push!(coefs, coefs_step)
     ind = nnz[i] + 1
   end

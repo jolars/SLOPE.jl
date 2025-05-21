@@ -66,12 +66,6 @@ function Plots.plot(fit::SLOPE.SlopeFit; xvar::Symbol=:α, layout=nothing, kwarg
 
   plot_options = merge(plot_defaults, Dict(kwargs))
 
-  # plt = Plots.plot(
-  #   x_values,
-  #   coef_matrix';
-  #   plot_options...
-  # )
-
   if m == 1
     coef_matrix = zeros(p, path_length)
 

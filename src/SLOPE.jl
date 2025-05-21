@@ -17,5 +17,9 @@ include("models.jl")
 export slope
 export SlopeFit
 
+if !isdefined(Base, :get_extension)
+  include("../ext/PlotSLOPE/PlotSLOPE.jl")
+end
+
 end
 
