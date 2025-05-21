@@ -11,11 +11,88 @@ struct SlopeParameters
   path_length::Int
   tol::Real
   max_it::Int
-  q::Real
+  q::Union{AbstractVector,Real}
   max_clusters::Union{Int,Nothing}
   dev_change_tol::Real
   dev_ratio_tol::Real
   α_min_ratio::Real
+end
+
+function process_slope_args(
+  x::Union{AbstractMatrix,SparseMatrixCSC},
+  y::AbstractVector;
+  α::Union{AbstractVector,Real,Nothing}=nothing,
+  λ::Union{AbstractVector,Nothing}=nothing,
+  fit_intercept::Bool=true,
+  loss::String="quadratic",
+  centering::String="mean",
+  scaling::String="sd",
+  path_length::Int=100,
+  tol::Float64=1e-5,
+  max_it::Int=10000,
+  q::Float64=0.1,
+  max_clusters::Union{Int,Nothing}=nothing,
+  dev_change_tol::Float64=1e-5,
+  dev_ratio_tol::Float64=0.999,
+  α_min_ratio::Union{Float64,Nothing}=nothing,
+)
+  n, p = size(x)
+  m = 1
+
+  y = convert(Array{Float64}, y)
+
+  unique_classes = nothing
+
+  if loss == "multinomial"
+    unique_classes = sort(unique(y))
+    n_classes = length(unique_classes)
+    m = n_classes - 1
+
+    # Create a mapping from original classes to 0-based consecutive integers
+    class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
+
+    # Transform input classes using the mapping
+    y = [class_map[class] for class in y]
+    y = convert(Array{Float64}, y)
+  end
+
+  if isnothing(max_clusters)
+    max_clusters = n + 1
+  end
+
+  if isnothing(α)
+    α = Float64[]
+  elseif isa(α, Real)
+    α = [α]
+  end
+
+  if isnothing(λ)
+    λ = Float64[]
+  end
+
+  if isnothing(α_min_ratio)
+    α_min_ratio = n > p * m ? 1e-2 : 1e-4
+  end
+
+  params = SlopeParameters(
+    n,
+    p,
+    m,
+    fit_intercept,
+    loss,
+    centering,
+    scaling,
+    path_length,
+    tol,
+    max_it,
+    q,
+    max_clusters,
+    dev_change_tol,
+    dev_ratio_tol,
+    α_min_ratio,
+  )
+
+  return params, y, α, λ, unique_classes
 end
 
 """
@@ -194,60 +271,24 @@ function slope(
   dev_ratio_tol::Float64=0.999,
   α_min_ratio::Union{Float64,Nothing}=nothing,
 )
-  n, p = size(x)
 
-  m = 1
-
-  y = convert(Array{Float64}, y)
-
-  if loss == "multinomial"
-    unique_classes = sort(unique(y))
-    n_classes = length(unique_classes)
-    m = n_classes - 1
-
-    # Create a mapping from original classes to 0-based consecutive integers
-    class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
-
-    # Transform input classes using the mapping
-    y = [class_map[class] for class in y]
-  end
-
-  y = convert(Array{Float64}, y)
-
-  if isnothing(max_clusters)
-    max_clusters = n + 1
-  end
-
-  if isnothing(α)
-    α = Float64[]
-  elseif isa(α, Real)
-    α = [α]
-  end
-
-  if isnothing(λ)
-    λ = Float64[]
-  end
-
-  if isnothing(α_min_ratio)
-    α_min_ratio = n > p * m ? 1e-2 : 1e-4
-  end
-
-  params = SlopeParameters(
-    n,
-    p,
-    m,
-    fit_intercept,
-    loss,
-    centering,
-    scaling,
-    path_length,
-    tol,
-    max_it,
-    q,
-    max_clusters,
-    dev_change_tol,
-    dev_ratio_tol,
-    α_min_ratio,
+  params, y, α, λ, original_classes = process_slope_args(
+    x,
+    y,
+    α=α,
+    λ=λ,
+    fit_intercept=fit_intercept,
+    loss=loss,
+    centering=centering,
+    scaling=scaling,
+    path_length=path_length,
+    tol=tol,
+    max_it=max_it,
+    q=q,
+    max_clusters=max_clusters,
+    dev_change_tol=dev_change_tol,
+    dev_ratio_tol=dev_ratio_tol,
+    α_min_ratio=α_min_ratio,
   )
 
   coef_vals = Float64[]
@@ -282,33 +323,31 @@ function slope(
 
   if !isempty(intercepts)
     # Reshape into a matrix and convert each row to a vector
-    intercept_matrix = reshape(intercepts, m, :)'  # path_length × m matrix
-    for i in 1:size(intercept_matrix, 1)
+    intercept_matrix = reshape(intercepts, params.m, :)'  # path_length × m matrix
+    for i in axes(intercept_matrix, 1)
       push!(intercept_vectors, intercept_matrix[i, :])
     end
   end
 
   for i in eachindex(nnz)
     if ind > nnz[i]
-      empty_mat = spzeros(Float64, p, m)
+      empty_mat = spzeros(Float64, params.p, params.m)
       push!(coefs, empty_mat)
       continue
     end
 
     rng = ind:nnz[i]
-    coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], p, m)
+    coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], params.p, params.m)
     push!(coefs, coefs_step)
     ind = nnz[i] + 1
   end
-
-  original_classes = loss == "multinomial" ? unique_classes : nothing
 
   SlopeFit(
     intercept_vectors,
     coefs,
     alpha_out,
     lambda_out,
-    m,
+    params.m,
     loss,
     original_classes
   )
