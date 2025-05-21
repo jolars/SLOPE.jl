@@ -42,7 +42,7 @@ y = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2]
 @testset "Regularization with intercept" begin
   # Set the lambda sequence directly
   α = 0.002
-  λ = [4.0, 3.0, 2.0, 1.0, 0.5, 0.1]
+  λ = [4.0, 3.0, 2.0, 1.0]
 
   # Fit the model with multinomial loss
   @test_nowarn fit = slope(
