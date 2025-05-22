@@ -182,14 +182,11 @@ function fitslope(
   alpha_out,
   lambda_out,
 )
-  x_rows = x.rowval
-  x_cols = x.colptr
-  x_vals = x.nzval
 
   SLOPE.fit_slope_sparse(
-    x_cols,
-    x_rows,
-    x_vals,
+    x.colptr,
+    x.rowval,
+    x.nzval,
     y,
     α,
     λ,

@@ -19,6 +19,10 @@ using Aqua
     include("plots.jl")
   end
 
+  @testset "CV" begin
+    include("cv.jl")
+  end
+
   @testset "Aqua" begin
     Aqua.test_all(SLOPE)
   end
