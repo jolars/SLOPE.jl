@@ -25,7 +25,7 @@ Random = "1.7.3"
 SparseArrays = "1.7.3"
 Test = "1.6"
 julia = "1.7"
-slope_jll = "2.5.1"
+slope_jll = "2.6.0"
 Plots = "1.40.13"
 
 [extras]
