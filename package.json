@@ -38,7 +38,7 @@
                 "Project.toml"
               ],
               "from": "version = \".*\"",
-              "to": "${nextRelease.version}",
+              "to": "version = \"${nextRelease.version}\"",
               "results": [
                 {
                   "file": "Project.toml",
