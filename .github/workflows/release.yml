@@ -68,3 +68,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
+      - name: Register
+        uses: peter-evans/commit-comment@v3
+        with:
+          body: "@JuliaRegistrator register branch=main"
