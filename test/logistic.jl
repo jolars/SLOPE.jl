@@ -39,7 +39,7 @@ lambda = [2.128045, 1.833915, 1.644854]
 
   fit = slope(x, y;
     λ=lambda,
-    loss="logistic",
+    loss=:logistic,
     fit_intercept=false,
     centering="none",
     scaling="none",
@@ -57,7 +57,7 @@ end
 
   fit = slope(x, y;
     λ=lambda,
-    loss="logistic",
+    loss=:logistic,
     fit_intercept=true,
     centering="none",
     scaling="none",

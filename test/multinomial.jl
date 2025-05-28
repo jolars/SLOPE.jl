@@ -50,7 +50,7 @@ y = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2]
     y,
     α=α,
     λ=λ,
-    loss="multinomial",
+    loss=:multinomial,
     fit_intercept=true,
     centering="none",
     scaling="none",

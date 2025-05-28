@@ -5,7 +5,7 @@ struct SlopeParameters
   p::Int
   m::Int
   fit_intercept::Bool
-  loss::String
+  loss::Symbol
   centering::String
   scaling::String
   path_length::Int
@@ -24,7 +24,7 @@ function process_slope_args(
   α::Union{AbstractVector,Real,Nothing}=nothing,
   λ::Union{AbstractVector,Nothing}=nothing,
   fit_intercept::Bool=true,
-  loss::String="quadratic",
+  loss::Symbol=:quadratic,
   centering::String="mean",
   scaling::String="sd",
   path_length::Int=100,
@@ -43,7 +43,7 @@ function process_slope_args(
 
   unique_classes = nothing
 
-  if loss == "multinomial"
+  if loss == :multinomial
     unique_classes = sort(unique(y))
     n_classes = length(unique_classes)
     m = n_classes - 1
@@ -120,7 +120,7 @@ struct SlopeFit
   α::Vector{Float64}
   λ::Vector{Float64}
   m::Int
-  loss::String
+  loss::Symbol
   classes::Union{Vector,Nothing}
 end
 
@@ -147,7 +147,7 @@ function fitslope(
     params.p,
     params.m,
     params.fit_intercept,
-    params.loss,
+    String(params.loss),
     params.centering,
     params.scaling,
     params.path_length,
@@ -194,7 +194,7 @@ function fitslope(
     params.p,
     params.m,
     params.fit_intercept,
-    params.loss,
+    String(params.loss),
     params.centering,
     params.scaling,
     params.path_length,
@@ -231,7 +231,7 @@ encouraging both sparsity and grouping of features.
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path
 - `λ::Union{AbstractVector,Nothing}=nothing`: Lambda sequence for regularization path
 - `fit_intercept::Bool=true`: Whether to fit an intercept term
-- `loss::String="quadratic"`: Type of loss function
+- `loss::Symbol=:quadratic`: Type of loss function
 - `centering::String="mean"`: Method for centering predictors
 - `scaling::String="sd"`: Method for scaling predictors
 - `path_length::Int=100`: Number of regularization path points
@@ -258,7 +258,7 @@ function slope(
   α::Union{AbstractVector,Real,Nothing}=nothing,
   λ::Union{AbstractVector,Nothing}=nothing,
   fit_intercept::Bool=true,
-  loss::String="quadratic",
+  loss::Symbol=:quadratic,
   centering::String="mean",
   scaling::String="sd",
   path_length::Int=100,

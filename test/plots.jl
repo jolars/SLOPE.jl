@@ -38,7 +38,7 @@ end
     y[i] = argmax(Y[i, :])
   end
 
-  res = slope(x, y, loss="multinomial")
+  res = slope(x, y, loss=:multinomial)
 
   plt = plot(res)
 
