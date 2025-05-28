@@ -1,0 +1,24 @@
+name: Register
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    name: Release
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Register
+        uses: peter-evans/commit-comment@v3
+        with:
+          body: "@JuliaRegistrator register()"
