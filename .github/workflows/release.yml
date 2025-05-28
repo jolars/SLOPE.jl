@@ -10,6 +10,9 @@ concurrency:
 jobs:
   build-and-test:
     uses: ./.github/workflows/build-and-test.yml
+    permissions:
+      actions: write
+      contents: read
 
   release:
     name: Release
