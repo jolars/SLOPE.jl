@@ -237,18 +237,20 @@ encouraging both sparsity and grouping of features.
 - `path_length::Int=100`: Number of regularization path points
 - `tol::Float64=1e-5`: Convergence tolerance for optimization
 - `max_it::Int=10000`: Maximum number of iterations
-- `q::Float64=0.1`: Parameter for regularization sequence
-- `max_clusters::Union{Int,Nothing}=nothing`: Maximum number of clusters (defaults to n+1)
-- `dev_change_tol::Float64=1e-5`: Tolerance for change in deviance
-- `dev_ratio_tol::Float64=0.999`: Tolerance for ratio of deviance
-- `α_min_ratio::Union{Float64,Nothing}=nothing`: Minimum alpha ratio for regularization path
+- `q::Float64=0.1`: Parameter for regularization sequence. Should be in the
+  range (0, 1). 
+- `max_clusters::Union{Int,Nothing}=nothing`: Early path stopping
+  criteria for maximum number of clusters (defaults to n+1) 
+- `dev_change_tol::Float64=1e-5`: Early path stopping criteria for tolerance for
+  change in deviance 
+- `dev_ratio_tol::Float64=0.999`: Early path stopping
+  criteria for tolerance for ratio of deviance
+- `α_min_ratio::Union{Float64,Nothing}=nothing`: Fraction of maximum `α` to use as minimum
+  value in the regularization path. Defaults to `1e-2` if `n > p * m`, otherwise `1e-4`.`
 
 # Returns
-A `NamedTuple` containing:
-- `β`: Array of sparse coefficient matrices along the regularization path
-- `β0`: Array of intercept values along the regularization path
-- `α`: Effective alpha values used
-- `λ`: Effective lambda values used
+A [`SlopeFit`](@ref) object.
+
 """
 function slope(
   x::Union{AbstractMatrix,SparseMatrixCSC},
