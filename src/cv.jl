@@ -37,12 +37,13 @@ Result structure from SLOPE cross-validation.
 
 # Fields
 
-- `metric::Symbol`: The evaluation metric used (e.g., "mse", "accuracy")
+- `metric::Symbol`: The evaluation metric used (e.g., `:mse`, `:accuracy`)
 - `best_score::Real`: The best score achieved during cross-validation
 - `best_ind::Int`: Index of the best parameter combination
 - `best_α_ind::Int`: Index of the best alpha value in the regularization path
 - `best_params::Dict{String,Any}`: Dictionary with the best parameter values
-- `results::Vector{SlopeGridResult}`: Grid search results for each parameter combination
+- `results::Vector{SlopeGridResult}`: Grid search results, of type [`SlopeGridResult`](@ref)
+  for each parameter combination
 
 """
 struct SlopeCvResult
