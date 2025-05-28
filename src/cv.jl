@@ -6,7 +6,7 @@ struct SlopeCvParameters
   q::Union{Float64,AbstractVector}
   n_folds::Int
   n_repeats::Int
-  metric::String
+  metric::Symbol
   fold_indices::Vector{Int}
 end
 
@@ -37,7 +37,7 @@ Result structure from SLOPE cross-validation.
 
 # Fields
 
-- `metric::String`: The evaluation metric used (e.g., "mse", "accuracy")
+- `metric::Symbol`: The evaluation metric used (e.g., "mse", "accuracy")
 - `best_score::Real`: The best score achieved during cross-validation
 - `best_ind::Int`: Index of the best parameter combination
 - `best_α_ind::Int`: Index of the best alpha value in the regularization path
@@ -46,7 +46,7 @@ Result structure from SLOPE cross-validation.
 
 """
 struct SlopeCvResult
-  metric::String
+  metric::Symbol
   best_score::Real
   best_ind::Int
   best_α_ind::Int
@@ -85,7 +85,7 @@ function slopecv_impl(
     params.α_min_ratio,
     cv_params.n_folds,
     cv_params.n_repeats,
-    cv_params.metric,
+    String(cv_params.metric),
     StdVector(cv_params.q),
     StdVector(cv_params.γ),
     StdVector(cv_params.fold_indices),
@@ -125,7 +125,7 @@ function slopecv_impl(
     params.α_min_ratio,
     cv_params.n_folds,
     cv_params.n_repeats,
-    cv_params.metric,
+    String(cv_params.metric),
     StdVector(cv_params.q),
     StdVector(cv_params.γ),
     StdVector(cv_params.fold_indices),
@@ -133,14 +133,25 @@ function slopecv_impl(
 end
 
 """
-    slopecv(x, y; α=nothing, λ=nothing, γ=[0.0], q=[0.1], n_folds=10, n_repeats=1, metric="mse", kwargs...)
+    slopecv(
+      x,
+      y;
+      α=nothing,
+      λ=nothing,
+      γ=[0.0],
+      q=[0.1],
+      n_folds=10,
+      n_repeats=1,
+      metric=:mse,
+      kwargs...
+    )
 
-Perform cross-validation for the SLOPE method to find optimal hyperparameters.
+Perform cross-validation for SLOPE to find optimal hyperparameters.
 
 # Arguments
 
 - `x::Union{AbstractMatrix,SparseMatrixCSC}`: Input feature matrix, can be dense or sparse.
-- `y::AbstractVector`: Target vector.
+- `y::AbstractVector`: Response vector.
 
 # Keyword Arguments
 
@@ -150,18 +161,12 @@ Perform cross-validation for the SLOPE method to find optimal hyperparameters.
 - `q::Union{AbstractVector}=[0.1]`: FDR parameter for BH sequence. Multiple values create a grid search.
 - `n_folds::Int=10`: Number of cross-validation folds.
 - `n_repeats::Int=1`: Number of times to repeat the CV process with different fold assignments.
-- `metric::String="mse"`: Evaluation metric for cross-validation. Options include "mse", "mae", "accuracy", etc.
+- `metric::Symbol=:mse`: Evaluation metric for cross-validation. Options include "mse", "mae", "accuracy", etc.
 - `kwargs...`: Additional parameters passed to the SLOPE solver.
 
 # Returns
 
-`SlopeCvResult`: A structure containing:
-- `metric`: The evaluation metric used
-- `best_score`: The best score achieved during CV
-- `best_ind`: Index of the best parameter combination
-- `best_α_ind`: Index of the best alpha value
-- `best_params`: Dictionary with the best parameter values
-- `results`: Vector of `SlopeGridResult` for each parameter combination
+A [`SlopeCvResult`](@ref) object.
 
 # Examples
 ```julia
@@ -169,7 +174,7 @@ Perform cross-validation for the SLOPE method to find optimal hyperparameters.
 result = slope(X, y)
 
 # Cross-validation with custom parameters
-result = slopecv(X, y, γ=[0.0, 0.1, 0.5], q=[0.1, 0.05], n_folds=5, metric="accuracy")
+result = slopecv(X, y, γ=[0.0, 0.1, 0.5], q=[0.1, 0.05], n_folds=5, metric=:accuracy)
 
 # Access best parameters and score
 best_q = result.best_params["q"]
@@ -191,7 +196,7 @@ function slopecv(
   q::Union{AbstractVector}=[0.1],
   n_folds::Int=10,
   n_repeats::Int=1,
-  metric::String="mse",
+  metric::Symbol=:mse,
   kwargs...,
 )
   params, y, α, λ, original_classes = process_slope_args(
