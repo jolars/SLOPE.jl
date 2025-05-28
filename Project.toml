@@ -1,7 +1,7 @@
 name = "SLOPE"
 uuid = "e3f974f6-674d-4b8e-a3d1-5850677db852"
 authors = ["Johan Larsson <jolars@posteo.com> and contributors"]
-version = "1.0.0"
+version = "0.0.0"
 
 [extensions]
 PlotSLOPE = "Plots"
