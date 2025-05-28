@@ -6,8 +6,8 @@ struct SlopeParameters
   m::Int
   fit_intercept::Bool
   loss::Symbol
-  centering::String
-  scaling::String
+  centering::Symbol
+  scaling::Symbol
   path_length::Int
   tol::Real
   max_it::Int
@@ -25,8 +25,8 @@ function process_slope_args(
   λ::Union{AbstractVector,Nothing}=nothing,
   fit_intercept::Bool=true,
   loss::Symbol=:quadratic,
-  centering::String="mean",
-  scaling::String="sd",
+  centering::Symbol=:mean,
+  scaling::Symbol=:sd,
   path_length::Int=100,
   tol::Float64=1e-5,
   max_it::Int=10000,
@@ -148,8 +148,8 @@ function fitslope(
     params.m,
     params.fit_intercept,
     String(params.loss),
-    params.centering,
-    params.scaling,
+    String(params.centering),
+    String(params.scaling),
     params.path_length,
     params.tol,
     params.max_it,
@@ -195,8 +195,8 @@ function fitslope(
     params.m,
     params.fit_intercept,
     String(params.loss),
-    params.centering,
-    params.scaling,
+    String(params.centering),
+    String(params.scaling),
     params.path_length,
     params.tol,
     params.max_it,
@@ -232,8 +232,8 @@ encouraging both sparsity and grouping of features.
 - `λ::Union{AbstractVector,Nothing}=nothing`: Lambda sequence for regularization path
 - `fit_intercept::Bool=true`: Whether to fit an intercept term
 - `loss::Symbol=:quadratic`: Type of loss function
-- `centering::String="mean"`: Method for centering predictors
-- `scaling::String="sd"`: Method for scaling predictors
+- `centering::Symbol=:mean`: Method for centering predictors
+- `scaling::Symbol=:sd`: Method for scaling predictors
 - `path_length::Int=100`: Number of regularization path points
 - `tol::Float64=1e-5`: Convergence tolerance for optimization
 - `max_it::Int=10000`: Maximum number of iterations
@@ -259,8 +259,8 @@ function slope(
   λ::Union{AbstractVector,Nothing}=nothing,
   fit_intercept::Bool=true,
   loss::Symbol=:quadratic,
-  centering::String="mean",
-  scaling::String="sd",
+  centering::Symbol=:mean,
+  scaling::Symbol=:sd,
   path_length::Int=100,
   tol::Float64=1e-5,
   max_it::Int=10000,

@@ -36,12 +36,14 @@ end
 Result structure from SLOPE cross-validation.
 
 # Fields
+
 - `metric::String`: The evaluation metric used (e.g., "mse", "accuracy")
 - `best_score::Real`: The best score achieved during cross-validation
 - `best_ind::Int`: Index of the best parameter combination
 - `best_α_ind::Int`: Index of the best alpha value in the regularization path
 - `best_params::Dict{String,Any}`: Dictionary with the best parameter values
 - `results::Vector{SlopeGridResult}`: Grid search results for each parameter combination
+
 """
 struct SlopeCvResult
   metric::String
@@ -71,8 +73,8 @@ function slopecv_impl(
     params.m,
     params.fit_intercept,
     String(params.loss),
-    params.centering,
-    params.scaling,
+    String(params.centering),
+    String(params.scaling),
     params.path_length,
     params.tol,
     params.max_it,
@@ -111,8 +113,8 @@ function slopecv_impl(
     params.m,
     params.fit_intercept,
     String(params.loss),
-    params.centering,
-    params.scaling,
+    String(params.centering),
+    String(params.scaling),
     params.path_length,
     params.tol,
     params.max_it,
@@ -136,10 +138,12 @@ end
 Perform cross-validation for the SLOPE method to find optimal hyperparameters.
 
 # Arguments
+
 - `x::Union{AbstractMatrix,SparseMatrixCSC}`: Input feature matrix, can be dense or sparse.
 - `y::AbstractVector`: Target vector.
 
 # Keyword Arguments
+
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: SLOPE regularization path. If `nothing`, it's automatically generated.
 - `λ::Union{AbstractVector,Nothing}=nothing`: Sequence of regularization parameters. If `nothing`, it's automatically generated.
 - `γ::Union{AbstractVector,Real}=[0.0]`: Parameter controlling the regularization sequence. Multiple values create a grid search.
@@ -150,6 +154,7 @@ Perform cross-validation for the SLOPE method to find optimal hyperparameters.
 - `kwargs...`: Additional parameters passed to the SLOPE solver.
 
 # Returns
+
 `SlopeCvResult`: A structure containing:
 - `metric`: The evaluation metric used
 - `best_score`: The best score achieved during CV
@@ -161,7 +166,7 @@ Perform cross-validation for the SLOPE method to find optimal hyperparameters.
 # Examples
 ```julia
 # Basic usage with default parameters
-result = slopecv(X, y)
+result = slope(X, y)
 
 # Cross-validation with custom parameters
 result = slopecv(X, y, γ=[0.0, 0.1, 0.5], q=[0.1, 0.05], n_folds=5, metric="accuracy")
@@ -173,8 +178,9 @@ best_score = result.best_score
 ```
 
 # See Also
-- `fit_slope`: For fitting a SLOPE model with fixed parameters.
-- `SlopeParameters`: Structure defining parameters for the SLOPE algorithm.
+
+- [`slope`](@ref): For fitting a SLOPE model with fixed parameters.
+
 """
 function slopecv(
   x::Union{AbstractMatrix,SparseMatrixCSC},

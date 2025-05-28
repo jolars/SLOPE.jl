@@ -41,8 +41,8 @@ lambda = [2.128045, 1.833915, 1.644854]
     λ=lambda,
     loss=:logistic,
     fit_intercept=false,
-    centering="none",
-    scaling="none",
+    centering=:none,
+    scaling=:none,
     α=α,
     tol=1e-7)
 
@@ -59,8 +59,8 @@ end
     λ=lambda,
     loss=:logistic,
     fit_intercept=true,
-    centering="none",
-    scaling="none",
+    centering=:none,
+    scaling=:none,
     α=α,
     tol=1e-7)
 

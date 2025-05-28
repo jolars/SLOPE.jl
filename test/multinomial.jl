@@ -52,8 +52,8 @@ y = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2]
     λ=λ,
     loss=:multinomial,
     fit_intercept=true,
-    centering="none",
-    scaling="none",
+    centering=:none,
+    scaling=:none,
     tol=1e-8,
     max_it=2000
   )
