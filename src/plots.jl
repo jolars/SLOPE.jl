@@ -46,7 +46,7 @@ as the regularization strength varies.
 # Returns
 A plot object showing the coefficient paths
 """
-@recipe function f(fit::SLOPE.SlopeFit; xvar=:α, response=1, layout=Nothing)
+@recipe function f(fit::SLOPE.SlopeFit; xvar=:α, response=1)
   if xvar == :α
     xscale --> :ln
     xlabel --> "α"
@@ -57,10 +57,6 @@ A plot object showing the coefficient paths
     x = 1:length(fit.α)
   else
     error("Invalid xvar: $xvar. Use :α or :step.")
-  end
-
-  if !isnothing(layout)
-    @warn "The `layout` argument is deprecated and has no effect."
   end
 
   legend --> :none
