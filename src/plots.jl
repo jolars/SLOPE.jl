@@ -21,6 +21,8 @@ function coefs(fit::SLOPE.SlopeFit, response=1)
 end
 
 """
+    plot(fit::SLOPE.SlopeFit; xvar=:α, response=1, kwargs...)
+
 Plot the coefficient paths from a SLOPE model regularization path.
 
 This function visualizes how the coefficients change along the regularization path,
