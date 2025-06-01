@@ -8,3 +8,10 @@ SLOPE.slopecv
 SLOPE.SlopeGridResult
 SLOPE.SlopeCvResult
 ```
+
+## Plotting
+
+```@autodocs
+Modules = [SLOPE]
+Pages = ["plots.jl"]
+```
