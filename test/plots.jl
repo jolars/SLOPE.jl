@@ -40,7 +40,7 @@ end
 
   res = slope(x, y, loss=:multinomial)
 
-  plt = plot(res)
+  plt = plot(res, response=2)
 
   @test plt isa Plots.Plot
 end

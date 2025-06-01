@@ -15,6 +15,7 @@ end
 include("utils.jl")
 include("models.jl")
 include("cv.jl")
+include("plots.jl")
 
 export slope
 export slopecv
@@ -22,11 +23,6 @@ export slopecv
 export SlopeFit
 export SlopeCvResult
 export SlopeGridResult
-
-# Make extensions backward compatible with Julia < 1.9
-if !isdefined(Base, :get_extension)
-  include("../ext/PlotSLOPE/PlotSLOPE.jl")
-end
 
 end
 
