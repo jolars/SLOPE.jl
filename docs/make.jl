@@ -1,13 +1,6 @@
 using Documenter
 using SLOPE
 
-# Copy CHANGELOG.md to docs/src/CHANGELOG.md
-cp(
-  joinpath(@__DIR__, "../CHANGELOG.md"),
-  joinpath(@__DIR__, "src/CHANGELOG.md");
-  force=true
-)
-
 makedocs(
   sitename="SLOPE",
   format=Documenter.HTML(
@@ -17,7 +10,6 @@ makedocs(
   pages=[
     "Home" => "index.md",
     "API Reference" => "api.md",
-    "Changelog" => "CHANGELOG.md",
   ]
 )
 
