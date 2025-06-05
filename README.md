@@ -8,7 +8,14 @@ Sorted L-One Penalized Estimation
 
 ## Installation
 
-You can install the package using the Julia package manager from the source code on GitHub:
+You can install the package using the Julia package manager:
+
+```julia
+using Pkg
+Pkg.add("SLOPE")
+```
+
+You can also install the latest development version directly from GitHub:
 
 ```julia
 using Pkg
