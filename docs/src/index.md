@@ -5,14 +5,14 @@
 You can install the package using the Julia package manager:
 
 ```julia
-]add SLOPE
+using Pkg
+Pkg.add("SLOPE")
 ```
 
 Alternatively, you can also install the latest development version of the
 package from the source code on GitHub by calling
 
 ```julia
-using Pkg
 Pkg.add(url = "https://github.com/jolars/SLOPE.jl")
 ```
 
