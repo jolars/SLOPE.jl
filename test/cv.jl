@@ -40,3 +40,22 @@ end
   @test length(res.results) == length(q) * length(γ)
 end
 
+@testset "Plots" begin
+  Random.seed!(13)
+
+  n = 100
+  p = 2
+
+  x = rand(n, p)
+  y = rand(n)
+
+  q = [0.1, 0.2]
+  γ = [0.0, 1.0]
+
+  res = slopecv(x, y, q=q, γ=γ)
+
+  plt = plot(res)
+
+  @test plt isa Plots.Plot
+
+end
