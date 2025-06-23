@@ -246,7 +246,7 @@ encouraging both sparsity and grouping of features.
 - `dev_ratio_tol::Float64=0.999`: Early path stopping
   criteria for tolerance for ratio of deviance
 - `α_min_ratio::Union{Float64,Nothing}=nothing`: Fraction of maximum `α` to use as minimum
-  value in the regularization path. Defaults to `1e-2` if `n > p * m`, otherwise `1e-4`.`
+  value in the regularization path. Defaults to `1e-2` if `n > p * m`, otherwise `1e-4`.
 
 # Returns
 A [`SlopeFit`](@ref) object.
