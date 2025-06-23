@@ -162,7 +162,7 @@ Perform cross-validation for SLOPE to find optimal hyperparameters.
 - `q::Union{AbstractVector}=[0.1]`: FDR parameter for BH sequence. Multiple values create a grid search.
 - `n_folds::Int=10`: Number of cross-validation folds.
 - `n_repeats::Int=1`: Number of times to repeat the CV process with different fold assignments.
-- `metric::Symbol=:mse`: Evaluation metric for cross-validation. Options include "mse", "mae", "accuracy", etc.
+- `metric::Symbol=:mse`: Evaluation metric for cross-validation. Options include `:mse`, `:mae`, `:accuracy`, etc.
 - `kwargs...`: Additional parameters passed to the SLOPE solver.
 
 # Returns
