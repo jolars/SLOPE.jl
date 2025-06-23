@@ -237,8 +237,8 @@ encouraging both sparsity and grouping of features.
 - `path_length::Int=100`: Number of regularization path points
 - `tol::Float64=1e-5`: Convergence tolerance for optimization
 - `max_it::Int=10000`: Maximum number of iterations
-- `q::Float64=0.1`: Parameter for regularization sequence. Should be in the
-  range (0, 1). 
+- `q::Float64=0.1`: Parameter controlling the shape of the penalty
+  weights sequence. Should be in the range (0, 1). 
 - `max_clusters::Union{Int,Nothing}=nothing`: Early path stopping
   criteria for maximum number of clusters (defaults to n+1) 
 - `dev_change_tol::Float64=1e-5`: Early path stopping criteria for tolerance for
