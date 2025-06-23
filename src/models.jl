@@ -110,7 +110,7 @@ A structure containing the results of fitting a SLOPE model.
 - `α::Vector{Float64}`: The alpha values used at each point of the regularization path.
 - `λ::Vector{Float64}`: The lambda values used at each point of the regularization path.
 - `m::Int`: The number of response classes (1 for regression, >1 for multinomial).
-- `loss::String`: The loss function used in the model fitting process.
+- `loss::Symbol`: The loss function used in the model fitting process.
 - `classes::Union{Vector,Nothing}`: A vector of unique class labels for the
   response variable. This is `nothing` for regression models (continuous responses).
 """
