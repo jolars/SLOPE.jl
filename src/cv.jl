@@ -172,7 +172,7 @@ A [`SlopeCvResult`](@ref) object.
 # Examples
 ```julia
 # Basic usage with default parameters
-result = slope(X, y)
+result = slopecv(X, y)
 
 # Cross-validation with custom parameters
 result = slopecv(X, y, γ=[0.0, 0.1, 0.5], q=[0.1, 0.05], n_folds=5, metric=:accuracy)
