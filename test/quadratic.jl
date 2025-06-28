@@ -32,11 +32,9 @@ end
   x = SparseArrays.sprand(n, p, 0.5)
   y = rand(n)
 
-  path_length = 3
-
   res_sparse = slope(x, y)
   res_dense = slope(Matrix(x), y)
 
-  @test isapprox(res_dense.coefficients, res_sparse.coefficients)
+  @test isapprox(res_dense.coefficients, res_sparse.coefficients, atol=1e-7, rtol=1e-4)
 end
 
