@@ -38,3 +38,16 @@ end
   @test isapprox(res_dense.coefficients, res_sparse.coefficients, atol=1e-7, rtol=1e-4)
 end
 
+@testset "Predictions" begin
+  Random.seed!(40)
+
+  n = 50
+  p = 10
+
+  x = rand(n, p)
+  y = rand(n)
+
+  res = slope(x, y)
+
+  predictions = predict(res, x)
+end

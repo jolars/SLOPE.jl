@@ -19,6 +19,7 @@ include("plots.jl")
 
 export slope
 export slopecv
+export predict
 
 export SlopeFit
 export SlopeCvResult
