@@ -365,3 +365,17 @@ function slope(
     original_classes
   )
 end
+
+function predict(fit::SlopeFit, x::Union{AbstractMatrix,SparseMatrixCSC})
+  path_length = length(fit.α)
+  predictions = Vector{Matrix{Float64}}(undef, path_length)
+
+  for i in 1:path_length
+    eta = Matrix(x * fit.coefficients[i] .+ fit.intercepts[i])
+    n, m = size(eta)
+    pred, pred_cols = SLOPE.slope_predict(eta, n, m, String(fit.loss))
+    predictions[i] = reshape(pred, n, Int64(pred_cols))
+  end
+
+  return predictions
+end

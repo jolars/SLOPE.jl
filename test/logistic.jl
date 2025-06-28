@@ -69,3 +69,24 @@ end
 
   @test isapprox(intercept, intercept_target, atol=1e-4)
 end
+
+@testset "Predictions" begin
+  Random.seed!(5)
+
+  n = 50
+  p = 3
+
+  x = rand(n, p)
+  β = [0.6, 0.0, -0.9]
+
+  eta = x * β
+  prob = 1.0 ./ (1.0 .+ exp.(-eta))
+  y = Float64.(prob .> 0.5)
+
+  res = slope(x, y, loss=:logistic)
+
+  predictions = predict(res, x)
+
+  @test length(predictions[1]) == n
+  @test unique(vcat([vec(pred) for pred in predictions]...)) ⊆ [0.0, 1.0]
+end
