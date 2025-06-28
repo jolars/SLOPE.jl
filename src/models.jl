@@ -16,6 +16,8 @@ struct SlopeParameters
   dev_change_tol::Real
   dev_ratio_tol::Real
   α_min_ratio::Real
+  cd_type::Symbol
+  random_seed::Int
 end
 
 function process_slope_args(
@@ -35,6 +37,8 @@ function process_slope_args(
   dev_change_tol::Float64=1e-5,
   dev_ratio_tol::Float64=0.999,
   α_min_ratio::Union{Float64,Nothing}=nothing,
+  cd_type::Symbol=:permuted,
+  random_seed::Int=0,
 )
   n, p = size(x)
   m = 1
@@ -90,6 +94,8 @@ function process_slope_args(
     dev_change_tol,
     dev_ratio_tol,
     α_min_ratio,
+    cd_type,
+    random_seed,
   )
 
   return params, y, α, λ, unique_classes
@@ -158,6 +164,8 @@ function fitslope(
     params.dev_change_tol,
     params.dev_ratio_tol,
     params.α_min_ratio,
+    String(params.cd_type),
+    params.random_seed,
     coef_vals,
     coef_rows,
     coef_cols,
@@ -205,6 +213,8 @@ function fitslope(
     params.dev_change_tol,
     params.dev_ratio_tol,
     params.α_min_ratio,
+    String(params.cd_type),
+    params.random_seed,
     coef_vals,
     coef_rows,
     coef_cols,
@@ -269,6 +279,8 @@ function slope(
   dev_change_tol::Float64=1e-5,
   dev_ratio_tol::Float64=0.999,
   α_min_ratio::Union{Float64,Nothing}=nothing,
+  cd_type::Symbol=:permuted,
+  random_seed::Int=0,
 )
 
   params, y, α, λ, original_classes = process_slope_args(
@@ -288,6 +300,8 @@ function slope(
     dev_change_tol=dev_change_tol,
     dev_ratio_tol=dev_ratio_tol,
     α_min_ratio=α_min_ratio,
+    cd_type=cd_type,
+    random_seed=random_seed,
   )
 
   coef_vals = Float64[]
