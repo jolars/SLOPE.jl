@@ -1,0 +1,70 @@
+cff-version: 1.2.0
+title: 'SLOPE.jl: Sorted L1 Penalized Estimation'
+type: software
+authors:
+  - given-names: Johan
+    family-names: Larsson
+    email: johan@jolars.co
+    affiliation: 'Department of Statistics, Lund University'
+    orcid: 'https://orcid.org/0000-0002-4029-5945'
+  - given-names: Jonas
+    family-names: Wallin
+    email: jonas.wallin@stat.lu.se
+    affiliation: 'Department of Statistics, Lund University'
+    orcid: 'https://orcid.org/0000-0003-0381-6593'
+  - given-names: Malgorzata
+    family-names: Bogdan
+    orcid: 'https://orcid.org/0000-0002-0657-4342'
+    email: malgorzata.bogdan@stat.lu.se
+  - given-names: Mathurin
+    family-names: Massias
+    orcid: 'https://orcid.org/0000-0002-8950-0356'
+  - given-names: Quentin
+    family-names: Klopfenstein
+    orcid: 'https://orcid.org/0000-0002-5771-6013'
+repository-code: 'https://github.com/jolars/SLOPE'
+url: 'https://jolars.github.io/SLOPE/'
+abstract: >-
+  Efficient implementations for Sorted L-One
+  Penalized Estimation (SLOPE): generalized linear
+  models regularized with the sorted L1-norm (Bogdan
+  et al. (2015) <doi:10.1214/15-AOAS842>). Supported models
+  include ordinary least-squares regression, binomial
+  regression, multinomial regression, and Poisson
+  regression. Both dense and sparse predictor
+  matrices are supported. In addition, the package
+  features predictor screening rules that enable fast
+  and efficient solutions to high-dimensional
+  problems.
+keywords:
+  - SLOPE
+  - regularization
+  - sparse regression
+  - generalized linear models
+license: GPL-3.0-or-later
+message: If you use this software, please cite our article on
+  arXiv.
+preferred-citation:
+  authors:
+    - family: Larsson
+      given: Johan
+      orcid: "https://orcid.org/0000-0002-4029-5945"
+    - family: Bogdan
+      given: Malgorzata
+    - family: Grzesiak
+      given: Krystyna
+    - family: Massias
+      given: Mathurin
+    - family: Wallin
+      given: Jonas
+    - family-names: Larsson
+      given-names: Johan
+  date-published: 2025-11-05
+  doi: 10.48550/arXiv.2511.02430
+  url: https://joss.theoj.org/papers/10.21105/joss.08936
+  number: arXiv:2511.02430
+  publisher:
+    name: arXiv
+  title: "Efficient Solvers for SLOPE in R, Python, Julia, and C++"
+  type: article
+  source: arXiv.org
