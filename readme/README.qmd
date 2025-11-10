@@ -1,0 +1,75 @@
+---
+format: gfm
+engine: julia
+---
+
+<!-- README.md is generated from README.qmd. Please edit that file -->
+
+# SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.png' align="right" height="139" /></a>
+
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://jolars.github.io/SLOPE.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
+[![Build Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
+
+SLOPE is a Julia package for fitting the Sorted L-One Penalized Estimation
+(SLOPE) model, which is a regularization technique for generalized linear
+models that induces both sparsity and clustering in the coefficients.
+
+## Installation
+
+You can install the package using the Julia package manager:
+
+```{julia}
+#| eval: false
+using Pkg
+Pkg.add("SLOPE")
+```
+
+You can also install the latest development version directly from GitHub:
+
+```{julia}
+#| eval: false
+using Pkg
+Pkg.add(url = "https://github.com/jolars/SLOPE.jl")
+```
+
+## Getting Started
+
+```{julia}
+using SLOPE
+using Random
+using LinearAlgebra
+
+Random.seed!(58)
+
+n = 1000
+p = 8
+
+x = rand(n, p)
+β = [-3.0, 1.5, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0]
+
+y = x * β .+ randn(n)
+
+res = slope(x, y)
+```
+
+You can then plot the results:
+
+```{julia}
+using Plots
+
+plot(res)
+```
+
+## Contributing
+
+This package is a thin wrapper around [libslope](https://github.com/jolars/libsllpe),
+which is a C++ library for fitting SLOPE models. So if you want to contribute to this
+package, chances are that you will need to make the contribution in the C++ library.
+
+When writing commit messages, please use the [conventional commits
+format](https://www.conventionalcommits.org/en/v1.0.0/).
+
+## Versioning
+
+SLOPE uses [semantic versioning](https://semver.org).

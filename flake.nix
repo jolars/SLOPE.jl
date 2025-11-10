@@ -32,6 +32,7 @@
             pkgs.pkg-config
             pkgs.nodejs
             pkgs.julia-bin
+            pkgs.quartoMinimal
             (pkgs.writeShellScriptBin "julia17" ''
               exec ${oldPkgs.julia_17-bin}/bin/julia "$@"
             '')

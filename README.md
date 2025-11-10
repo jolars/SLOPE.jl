@@ -1,30 +1,78 @@
+
+
+<!-- README.md is generated from README.qmd. Please edit that file -->
+
 # SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.png' align="right" height="139" /></a>
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://jolars.github.io/SLOPE.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
-[![Build Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
+[![Build
+Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
 
-Sorted L-One Penalized Estimation
+SLOPE is a Julia package for fitting the Sorted L-One Penalized
+Estimation (SLOPE) model, which is a regularization technique for
+generalized linear models that induces both sparsity and clustering in
+the coefficients.
 
 ## Installation
 
 You can install the package using the Julia package manager:
 
-```julia
+``` julia
 using Pkg
 Pkg.add("SLOPE")
 ```
 
-You can also install the latest development version directly from GitHub:
+You can also install the latest development version directly from
+GitHub:
 
-```julia
+``` julia
 using Pkg
 Pkg.add(url = "https://github.com/jolars/SLOPE.jl")
 ```
 
+## Getting Started
+
+``` julia
+using SLOPE
+using Random
+using LinearAlgebra
+
+Random.seed!(58)
+
+n = 1000
+p = 8
+
+x = rand(n, p)
+β = [-3.0, 1.5, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0]
+
+y = x * β .+ randn(n)
+
+res = slope(x, y)
+```
+
+    SlopeFit([[0.2239470346891665], [0.2936547429247171], [0.3601941282383936], [0.42370919579679134], [0.4678349100830038], [0.4754242859433777], [0.48266871295778], [0.4895838695414133], [0.4961847216675781], [0.5024855548405134]  …  [-0.140139046778331], [-0.14268298140857508], [-0.14511128353604874], [-0.14742923043994335], [-0.14964181537425342], [-0.15175383503271456], [-0.15376985939160714], [-0.15569425372349696], [-0.15753118083286521], [-0.15928461663008833]], SparseArrays.SparseMatrixCSC{Float64, Int64}[sparse(Int64[], Int64[], Float64[], 8, 1), sparse([1], [1], [-0.1374430981699072], 8, 1), sparse([1], [1], [-0.2686391954068101], 8, 1), sparse([1], [1], [-0.39387222754435236], 8, 1), sparse([1, 5], [1, 1], [-0.5122999755362865, 0.031903003071924944], 8, 1), sparse([1, 5], [1, 1], [-0.623015573145912, 0.12911161695697385], 8, 1), sparse([1, 5], [1, 1], [-0.7286989759724661, 0.22190194931536392], 8, 1), sparse([1, 5], [1, 1], [-0.8295789049544131, 0.3104748178638616], 8, 1), sparse([1, 5], [1, 1], [-0.9258736856306325, 0.3950219128361925], 8, 1), sparse([1, 5], [1, 1], [-1.0177917198347086, 0.47572621185469127], 8, 1)  …  sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.00946006410167, 1.5549725557462242, -0.07395787298948325, 0.06082802851654349, 2.1099207641014925, 0.019480374210435455, 0.03623715098997132, 0.06123529005679558], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.0117413315120034, 1.5568210099903153, -0.07566469039887601, 0.06225312144620903, 2.111600969779346, 0.02077683656047722, 0.03775757873273956, 0.0626223350726966], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.013918896285063, 1.5585854470494571, -0.07729393998374161, 0.06361344424935872, 2.113204811609692, 0.02201437137061471, 0.039208884116579384, 0.0639463304855487], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.01599751769719, 1.5602696926108723, -0.07884911807309025, 0.06491193340612947, 2.1147357487598546, 0.023195661481932712, 0.04059425829579222, 0.06521016075128278], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.0179816477811308, 1.5618773840976308, -0.0803336205614275, 0.066151406612955, 2.1161971051567168, 0.024323258505925923, 0.04191664881118075, 0.06641654252409003], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.019875596164752, 1.5634120035073034, -0.08175065010591533, 0.06733454383686095, 2.117592041360498, 0.025399604509690445, 0.043178934769122025, 0.06756809187095003], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.021683459395593, 1.5648768718498942, -0.08310327616291023, 0.06846390572706136, 2.11892357640473, 0.026427028975595377, 0.044383846537621, 0.06866730107769642], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.023409156692141, 1.5662751602373792, -0.08439441805391908, 0.06954193622503466, 2.1201945892448966, 0.0274077552072757, 0.04553399554892606, 0.06971655062459022], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.0250564164002367, 1.5676098939279839, -0.08562687814953437, 0.07057096863560369, 2.121407833751356, 0.02834390615283505, 0.04663186774574925, 0.0707181093717569], 8, 1), sparse([1, 2, 3, 4, 5, 6, 7, 8], [1, 1, 1, 1, 1, 1, 1, 1], [-3.026628805525134, 1.5688839619312587, -0.0868033209900746, 0.07155322994812964, 2.1225659341823118, 0.02923750750813685, 0.047679839624174006, 0.07167414594096563], 8, 1)], [0.3435750094189025, 0.3279589949883885, 0.31305275251453235, 0.298824021766486, 0.2852420087906815, 0.2722773192662663, 0.25990189488963594, 0.24808895265038816, 0.2368129268672789, 0.22604941385873284  …  0.00522203464641448, 0.0049846851123695754, 0.004758123480957597, 0.0045418594253545065, 0.004335424904847148, 0.004138373151895122, 0.0039502777052322574, 0.0037707314869151083, 0.0035993459213209985, 0.003435750094189025], [2.4977054769619746, 2.2414027264652865, 2.0802784504018748, 1.959963986120195, 1.8627318658102858, 1.7804643436906789, 1.7087352577897097, 1.644853625133699], 1, :quadratic, nothing)
+
+You can then plot the results:
+
+``` julia
+using Plots
+
+plot(res)
+```
+
+![](README_files/figure-commonmark/cell-5-output-1.svg)
+
 ## Contributing
 
-When writing commit messages, please use the [conventional commits format](https://www.conventionalcommits.org/en/v1.0.0/).
+This package is a thin wrapper around
+[libslope](https://github.com/jolars/libsllpe), which is a C++ library
+for fitting SLOPE models. So if you want to contribute to this package,
+chances are that you will need to make the contribution in the C++
+library.
+
+When writing commit messages, please use the [conventional commits
+format](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Versioning
 
