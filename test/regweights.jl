@@ -44,3 +44,23 @@ end
 @testset "Invalid Type" begin
     @test_throws ArgumentError regweights(4, type = :invalid_type)
 end
+
+@testset "Main Functionality" begin
+    n = 50
+    p = 10
+    x = rand(n, p)
+    β = rand(p)
+    y = x * β + 0.1 * randn(n)
+
+    # Manual weights
+    λ = regweights(p, type = :bh, q = 0.1)
+    res_man = slope(x, y, λ = λ)
+
+    @test size(res_man.coefficients[1], 1) == p
+
+    # Symbolic weights
+    res_sym = slope(x, y, λ = :bh, q = 0.1)
+    @test size(res_sym.coefficients[1], 1) == p
+
+    @test isequal(res_man.coefficients[5], res_sym.coefficients[5])
+end
