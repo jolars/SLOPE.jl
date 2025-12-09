@@ -123,6 +123,21 @@ A structure containing the results of fitting a SLOPE model.
 - `loss::Symbol`: The loss function used in the model fitting process.
 - `classes::Union{Vector,Nothing}`: A vector of unique class labels for the
   response variable. This is `nothing` for regression models (continuous responses).
+
+# Examples
+```julia
+using SLOPE
+
+# Fit a SLOPE model
+x = randn(100, 10)
+y = randn(100)
+fit = slope(x, y)
+
+# Access results
+fit.coefficients[1]  # Coefficients at first point of regularization path
+fit.α  # Alpha values along the path
+fit.intercepts[end]  # Intercept at last point of regularization path
+```
 """
 struct SlopeFit
   intercepts::Vector{Vector{Float64}}
@@ -230,7 +245,7 @@ function fitslope(
 end
 
 """
-    slope(x, y; kwargs...) -> NamedTuple
+    slope(x, y; kwargs...) -> SlopeFit
 
 Fit a SLOPE (Sorted L1 Penalized Estimation) model to the provided data.
 
@@ -266,6 +281,26 @@ encouraging both sparsity and grouping of features.
 # Returns
 A [`SlopeFit`](@ref) object.
 
+# Examples
+```julia
+using SLOPE
+
+# Basic regression example
+x = randn(100, 20)
+y = x[:, 1:5] * ones(5) + randn(100)
+fit = slope(x, y)
+
+# Use custom regularization parameters
+fit = slope(x, y, q=0.05, path_length=50)
+
+# Use OSCAR-type lambda sequence
+fit = slope(x, y, λ=:oscar)
+
+# Multinomial classification
+x = randn(150, 10)
+y = repeat([1, 2, 3], 50)
+fit = slope(x, y, loss=:multinomial)
+```
 """
 function slope(
   x::Union{AbstractMatrix,SparseMatrixCSC},
