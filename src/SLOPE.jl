@@ -9,7 +9,7 @@ using slope_jll
 @wrapmodule(slope_jll.get_libslopejll_path)
 
 function __init__()
-  @initcxx
+    return @initcxx
 end
 
 include("utils.jl")
@@ -29,4 +29,3 @@ export SlopeCvResult
 export SlopeGridResult
 
 end
-

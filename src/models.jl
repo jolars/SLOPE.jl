@@ -1,108 +1,108 @@
 using SparseArrays
 
 struct SlopeParameters
-  n::Int
-  p::Int
-  m::Int
-  fit_intercept::Bool
-  loss::Symbol
-  centering::Symbol
-  scaling::Symbol
-  path_length::Int
-  tol::Real
-  max_it::Int
-  q::Union{AbstractVector,Real}
-  max_clusters::Union{Int,Nothing}
-  dev_change_tol::Real
-  dev_ratio_tol::Real
-  α_min_ratio::Real
-  cd_type::Symbol
-  random_seed::Int
+    n::Int
+    p::Int
+    m::Int
+    fit_intercept::Bool
+    loss::Symbol
+    centering::Symbol
+    scaling::Symbol
+    path_length::Int
+    tol::Real
+    max_it::Int
+    q::Union{AbstractVector, Real}
+    max_clusters::Union{Int, Nothing}
+    dev_change_tol::Real
+    dev_ratio_tol::Real
+    α_min_ratio::Real
+    cd_type::Symbol
+    random_seed::Int
 end
 
 function process_slope_args(
-  x::Union{AbstractMatrix,SparseMatrixCSC},
-  y::AbstractVector;
-  α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Nothing,Symbol}=:bh,
-  fit_intercept::Bool=true,
-  loss::Symbol=:quadratic,
-  centering::Symbol=:mean,
-  scaling::Symbol=:sd,
-  path_length::Int=100,
-  tol::Float64=1e-5,
-  max_it::Int=10000,
-  q::Float64=0.1,
-  max_clusters::Union{Int,Nothing}=nothing,
-  dev_change_tol::Float64=1e-5,
-  dev_ratio_tol::Float64=0.999,
-  α_min_ratio::Union{Float64,Nothing}=nothing,
-  cd_type::Symbol=:permuted,
-  random_seed::Int=0,
-)
-  n, p = size(x)
-  m = 1
+        x::Union{AbstractMatrix, SparseMatrixCSC},
+        y::AbstractVector;
+        α::Union{AbstractVector, Real, Nothing} = nothing,
+        λ::Union{AbstractVector, Nothing, Symbol} = :bh,
+        fit_intercept::Bool = true,
+        loss::Symbol = :quadratic,
+        centering::Symbol = :mean,
+        scaling::Symbol = :sd,
+        path_length::Int = 100,
+        tol::Float64 = 1.0e-5,
+        max_it::Int = 10000,
+        q::Float64 = 0.1,
+        max_clusters::Union{Int, Nothing} = nothing,
+        dev_change_tol::Float64 = 1.0e-5,
+        dev_ratio_tol::Float64 = 0.999,
+        α_min_ratio::Union{Float64, Nothing} = nothing,
+        cd_type::Symbol = :permuted,
+        random_seed::Int = 0,
+    )
+    n, p = size(x)
+    m = 1
 
-  y = convert(Array{Float64}, y)
-
-  unique_classes = nothing
-
-  if loss == :multinomial
-    unique_classes = sort(unique(y))
-    n_classes = length(unique_classes)
-    m = n_classes - 1
-
-    # Create a mapping from original classes to 0-based consecutive integers
-    class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
-
-    # Transform input classes using the mapping
-    y = [class_map[class] for class in y]
     y = convert(Array{Float64}, y)
-  end
 
-  if isnothing(max_clusters)
-    max_clusters = n + 1
-  end
+    unique_classes = nothing
 
-  if isnothing(α)
-    α = Float64[]
-  elseif isa(α, Real)
-    α = [α]
-  end
+    if loss == :multinomial
+        unique_classes = sort(unique(y))
+        n_classes = length(unique_classes)
+        m = n_classes - 1
 
-  if isnothing(λ)
-    λ = Float64[]
-  end
+        # Create a mapping from original classes to 0-based consecutive integers
+        class_map = Dict(class => i - 1 for (i, class) in enumerate(unique_classes))
 
-  if isa(λ, Symbol)
-    λ = regweights(p*m; q=q, type=λ, n=n)
-  end
+        # Transform input classes using the mapping
+        y = [class_map[class] for class in y]
+        y = convert(Array{Float64}, y)
+    end
 
-  if isnothing(α_min_ratio)
-    α_min_ratio = n > p * m ? 1e-2 : 1e-4
-  end
+    if isnothing(max_clusters)
+        max_clusters = n + 1
+    end
 
-  params = SlopeParameters(
-    n,
-    p,
-    m,
-    fit_intercept,
-    loss,
-    centering,
-    scaling,
-    path_length,
-    tol,
-    max_it,
-    q,
-    max_clusters,
-    dev_change_tol,
-    dev_ratio_tol,
-    α_min_ratio,
-    cd_type,
-    random_seed,
-  )
+    if isnothing(α)
+        α = Float64[]
+    elseif isa(α, Real)
+        α = [α]
+    end
 
-  return params, y, α, λ, unique_classes
+    if isnothing(λ)
+        λ = Float64[]
+    end
+
+    if isa(λ, Symbol)
+        λ = regweights(p * m; q = q, type = λ, n = n)
+    end
+
+    if isnothing(α_min_ratio)
+        α_min_ratio = n > p * m ? 1.0e-2 : 1.0e-4
+    end
+
+    params = SlopeParameters(
+        n,
+        p,
+        m,
+        fit_intercept,
+        loss,
+        centering,
+        scaling,
+        path_length,
+        tol,
+        max_it,
+        q,
+        max_clusters,
+        dev_change_tol,
+        dev_ratio_tol,
+        α_min_ratio,
+        cd_type,
+        random_seed,
+    )
+
+    return params, y, α, λ, unique_classes
 end
 
 """
@@ -140,108 +140,108 @@ fit.intercepts[end]  # Intercept at last point of regularization path
 ```
 """
 struct SlopeFit
-  intercepts::Vector{Vector{Float64}}
-  coefficients::Vector{SparseMatrixCSC{Float64,Int}}
-  α::Vector{Float64}
-  λ::Vector{Float64}
-  m::Int
-  loss::Symbol
-  classes::Union{Vector,Nothing}
+    intercepts::Vector{Vector{Float64}}
+    coefficients::Vector{SparseMatrixCSC{Float64, Int}}
+    α::Vector{Float64}
+    λ::Vector{Float64}
+    m::Int
+    loss::Symbol
+    classes::Union{Vector, Nothing}
 end
 
 function fitslope(
-  x::AbstractMatrix,
-  y,
-  α,
-  λ,
-  params::SlopeParameters,
-  coef_vals,
-  coef_rows,
-  coef_cols,
-  intercepts,
-  nnz,
-  alpha_out,
-  lambda_out,
-)
-  SLOPE.fit_slope_dense(
-    x,
-    y,
-    α,
-    λ,
-    params.n,
-    params.p,
-    params.m,
-    params.fit_intercept,
-    String(params.loss),
-    String(params.centering),
-    String(params.scaling),
-    params.path_length,
-    params.tol,
-    params.max_it,
-    params.q,
-    params.max_clusters,
-    params.dev_change_tol,
-    params.dev_ratio_tol,
-    params.α_min_ratio,
-    String(params.cd_type),
-    params.random_seed,
-    coef_vals,
-    coef_rows,
-    coef_cols,
-    intercepts,
-    nnz,
-    alpha_out,
-    lambda_out
-  )
+        x::AbstractMatrix,
+        y,
+        α,
+        λ,
+        params::SlopeParameters,
+        coef_vals,
+        coef_rows,
+        coef_cols,
+        intercepts,
+        nnz,
+        alpha_out,
+        lambda_out,
+    )
+    return SLOPE.fit_slope_dense(
+        x,
+        y,
+        α,
+        λ,
+        params.n,
+        params.p,
+        params.m,
+        params.fit_intercept,
+        String(params.loss),
+        String(params.centering),
+        String(params.scaling),
+        params.path_length,
+        params.tol,
+        params.max_it,
+        params.q,
+        params.max_clusters,
+        params.dev_change_tol,
+        params.dev_ratio_tol,
+        params.α_min_ratio,
+        String(params.cd_type),
+        params.random_seed,
+        coef_vals,
+        coef_rows,
+        coef_cols,
+        intercepts,
+        nnz,
+        alpha_out,
+        lambda_out
+    )
 end
 
 function fitslope(
-  x::SparseMatrixCSC,
-  y,
-  α,
-  λ,
-  params::SlopeParameters,
-  coef_vals,
-  coef_rows,
-  coef_cols,
-  intercepts,
-  nnz,
-  alpha_out,
-  lambda_out,
-)
+        x::SparseMatrixCSC,
+        y,
+        α,
+        λ,
+        params::SlopeParameters,
+        coef_vals,
+        coef_rows,
+        coef_cols,
+        intercepts,
+        nnz,
+        alpha_out,
+        lambda_out,
+    )
 
-  SLOPE.fit_slope_sparse(
-    x.colptr,
-    x.rowval,
-    x.nzval,
-    y,
-    α,
-    λ,
-    params.n,
-    params.p,
-    params.m,
-    params.fit_intercept,
-    String(params.loss),
-    String(params.centering),
-    String(params.scaling),
-    params.path_length,
-    params.tol,
-    params.max_it,
-    params.q,
-    params.max_clusters,
-    params.dev_change_tol,
-    params.dev_ratio_tol,
-    params.α_min_ratio,
-    String(params.cd_type),
-    params.random_seed,
-    coef_vals,
-    coef_rows,
-    coef_cols,
-    intercepts,
-    nnz,
-    alpha_out,
-    lambda_out
-  )
+    return SLOPE.fit_slope_sparse(
+        x.colptr,
+        x.rowval,
+        x.nzval,
+        y,
+        α,
+        λ,
+        params.n,
+        params.p,
+        params.m,
+        params.fit_intercept,
+        String(params.loss),
+        String(params.centering),
+        String(params.scaling),
+        params.path_length,
+        params.tol,
+        params.max_it,
+        params.q,
+        params.max_clusters,
+        params.dev_change_tol,
+        params.dev_ratio_tol,
+        params.α_min_ratio,
+        String(params.cd_type),
+        params.random_seed,
+        coef_vals,
+        coef_rows,
+        coef_cols,
+        intercepts,
+        nnz,
+        alpha_out,
+        lambda_out
+    )
 end
 
 """
@@ -303,119 +303,119 @@ fit = slope(x, y, loss=:multinomial)
 ```
 """
 function slope(
-  x::Union{AbstractMatrix,SparseMatrixCSC},
-  y::AbstractVector;
-  α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Nothing,Symbol}=:bh,
-  fit_intercept::Bool=true,
-  loss::Symbol=:quadratic,
-  centering::Symbol=:mean,
-  scaling::Symbol=:sd,
-  path_length::Int=100,
-  tol::Float64=1e-5,
-  max_it::Int=10000,
-  q::Float64=0.1,
-  max_clusters::Union{Int,Nothing}=nothing,
-  dev_change_tol::Float64=1e-5,
-  dev_ratio_tol::Float64=0.999,
-  α_min_ratio::Union{Float64,Nothing}=nothing,
-  cd_type::Symbol=:permuted,
-  random_seed::Int=0,
-)
+        x::Union{AbstractMatrix, SparseMatrixCSC},
+        y::AbstractVector;
+        α::Union{AbstractVector, Real, Nothing} = nothing,
+        λ::Union{AbstractVector, Nothing, Symbol} = :bh,
+        fit_intercept::Bool = true,
+        loss::Symbol = :quadratic,
+        centering::Symbol = :mean,
+        scaling::Symbol = :sd,
+        path_length::Int = 100,
+        tol::Float64 = 1.0e-5,
+        max_it::Int = 10000,
+        q::Float64 = 0.1,
+        max_clusters::Union{Int, Nothing} = nothing,
+        dev_change_tol::Float64 = 1.0e-5,
+        dev_ratio_tol::Float64 = 0.999,
+        α_min_ratio::Union{Float64, Nothing} = nothing,
+        cd_type::Symbol = :permuted,
+        random_seed::Int = 0,
+    )
 
-  params, y, α, λ, original_classes = process_slope_args(
-    x,
-    y,
-    α=α,
-    λ=λ,
-    fit_intercept=fit_intercept,
-    loss=loss,
-    centering=centering,
-    scaling=scaling,
-    path_length=path_length,
-    tol=tol,
-    max_it=max_it,
-    q=q,
-    max_clusters=max_clusters,
-    dev_change_tol=dev_change_tol,
-    dev_ratio_tol=dev_ratio_tol,
-    α_min_ratio=α_min_ratio,
-    cd_type=cd_type,
-    random_seed=random_seed,
-  )
+    params, y, α, λ, original_classes = process_slope_args(
+        x,
+        y,
+        α = α,
+        λ = λ,
+        fit_intercept = fit_intercept,
+        loss = loss,
+        centering = centering,
+        scaling = scaling,
+        path_length = path_length,
+        tol = tol,
+        max_it = max_it,
+        q = q,
+        max_clusters = max_clusters,
+        dev_change_tol = dev_change_tol,
+        dev_ratio_tol = dev_ratio_tol,
+        α_min_ratio = α_min_ratio,
+        cd_type = cd_type,
+        random_seed = random_seed,
+    )
 
-  coef_vals = Float64[]
-  coef_rows = Int[]
-  coef_cols = Int[]
-  nnz = Int[]
+    coef_vals = Float64[]
+    coef_rows = Int[]
+    coef_cols = Int[]
+    nnz = Int[]
 
-  intercepts = Float64[]
+    intercepts = Float64[]
 
-  alpha_out = Float64[]
-  lambda_out = Float64[]
+    alpha_out = Float64[]
+    lambda_out = Float64[]
 
-  fitslope(
-    x,
-    y,
-    α,
-    λ,
-    params,
-    coef_vals,
-    coef_rows,
-    coef_cols,
-    intercepts,
-    nnz,
-    alpha_out,
-    lambda_out,
-  )
+    fitslope(
+        x,
+        y,
+        α,
+        λ,
+        params,
+        coef_vals,
+        coef_rows,
+        coef_cols,
+        intercepts,
+        nnz,
+        alpha_out,
+        lambda_out,
+    )
 
-  ind = 1
+    ind = 1
 
-  coefs = []
-  intercept_vectors = Vector{Vector{Float64}}()
+    coefs = []
+    intercept_vectors = Vector{Vector{Float64}}()
 
-  if !isempty(intercepts)
-    # Reshape into a matrix and convert each row to a vector
-    intercept_matrix = reshape(intercepts, params.m, :)'  # path_length × m matrix
-    for i in axes(intercept_matrix, 1)
-      push!(intercept_vectors, intercept_matrix[i, :])
-    end
-  end
-
-  for i in eachindex(nnz)
-    if ind > nnz[i]
-      empty_mat = spzeros(Float64, params.p, params.m)
-      push!(coefs, empty_mat)
-      continue
+    if !isempty(intercepts)
+        # Reshape into a matrix and convert each row to a vector
+        intercept_matrix = reshape(intercepts, params.m, :)'  # path_length × m matrix
+        for i in axes(intercept_matrix, 1)
+            push!(intercept_vectors, intercept_matrix[i, :])
+        end
     end
 
-    rng = ind:nnz[i]
-    coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], params.p, params.m)
-    push!(coefs, coefs_step)
-    ind = nnz[i] + 1
-  end
+    for i in eachindex(nnz)
+        if ind > nnz[i]
+            empty_mat = spzeros(Float64, params.p, params.m)
+            push!(coefs, empty_mat)
+            continue
+        end
 
-  SlopeFit(
-    intercept_vectors,
-    coefs,
-    alpha_out,
-    lambda_out,
-    params.m,
-    loss,
-    original_classes
-  )
+        rng = ind:nnz[i]
+        coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], params.p, params.m)
+        push!(coefs, coefs_step)
+        ind = nnz[i] + 1
+    end
+
+    return SlopeFit(
+        intercept_vectors,
+        coefs,
+        alpha_out,
+        lambda_out,
+        params.m,
+        loss,
+        original_classes
+    )
 end
 
-function predict(fit::SlopeFit, x::Union{AbstractMatrix,SparseMatrixCSC})
-  path_length = length(fit.α)
-  predictions = Vector{Matrix{Float64}}(undef, path_length)
+function predict(fit::SlopeFit, x::Union{AbstractMatrix, SparseMatrixCSC})
+    path_length = length(fit.α)
+    predictions = Vector{Matrix{Float64}}(undef, path_length)
 
-  for i in 1:path_length
-    eta = Matrix(x * fit.coefficients[i] .+ fit.intercepts[i])
-    n, m = size(eta)
-    pred, pred_cols = SLOPE.slope_predict(eta, n, m, String(fit.loss))
-    predictions[i] = reshape(pred, n, Int64(pred_cols))
-  end
+    for i in 1:path_length
+        eta = Matrix(x * fit.coefficients[i] .+ fit.intercepts[i])
+        n, m = size(eta)
+        pred, pred_cols = SLOPE.slope_predict(eta, n, m, String(fit.loss))
+        predictions[i] = reshape(pred, n, Int64(pred_cols))
+    end
 
-  return predictions
+    return predictions
 end

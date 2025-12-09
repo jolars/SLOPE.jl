@@ -2,12 +2,12 @@ using CxxWrap
 using Random
 
 struct SlopeCvParameters
-  γ::Union{Float64,AbstractVector}
-  q::Union{Float64,AbstractVector}
-  n_folds::Int
-  n_repeats::Int
-  metric::Symbol
-  fold_indices::Vector{Int}
+    γ::Union{Float64, AbstractVector}
+    q::Union{Float64, AbstractVector}
+    n_folds::Int
+    n_repeats::Int
+    metric::Symbol
+    fold_indices::Vector{Int}
 end
 
 """
@@ -23,11 +23,11 @@ Results for a specific hyperparameter combination in the SLOPE cross-validation 
 - `scores_errors::Vector{Real}`: Standard errors of scores across folds
 """
 struct SlopeGridResult
-  params::Dict{String,Any}
-  scores::Matrix{Real}
-  alphas::Vector{Real}
-  scores_means::Vector{Real}
-  scores_errors::Vector{Real}
+    params::Dict{String, Any}
+    scores::Matrix{Real}
+    alphas::Vector{Real}
+    scores_means::Vector{Real}
+    scores_errors::Vector{Real}
 end
 
 """
@@ -47,94 +47,94 @@ Result structure from SLOPE cross-validation.
 
 """
 struct SlopeCvResult
-  metric::Symbol
-  best_score::Real
-  best_ind::Int
-  best_α_ind::Int
-  best_params::Dict{String,Any}
-  results::Vector{SlopeGridResult}
+    metric::Symbol
+    best_score::Real
+    best_ind::Int
+    best_α_ind::Int
+    best_params::Dict{String, Any}
+    results::Vector{SlopeGridResult}
 end
 
 function slopecv_impl(
-  x::AbstractMatrix,
-  y,
-  α,
-  λ,
-  params::SlopeParameters,
-  cv_params::SlopeCvParameters,
-)
+        x::AbstractMatrix,
+        y,
+        α,
+        λ,
+        params::SlopeParameters,
+        cv_params::SlopeCvParameters,
+    )
 
-  SLOPE.cv_slope_dense(
-    x,
-    y,
-    α,
-    λ,
-    params.n,
-    params.p,
-    params.m,
-    params.fit_intercept,
-    String(params.loss),
-    String(params.centering),
-    String(params.scaling),
-    params.path_length,
-    params.tol,
-    params.max_it,
-    params.q,
-    params.max_clusters,
-    params.dev_change_tol,
-    params.dev_ratio_tol,
-    params.α_min_ratio,
-    String(params.cd_type),
-    params.random_seed,
-    cv_params.n_folds,
-    cv_params.n_repeats,
-    String(cv_params.metric),
-    StdVector(cv_params.q),
-    StdVector(cv_params.γ),
-    StdVector(cv_params.fold_indices),
-  )
+    return SLOPE.cv_slope_dense(
+        x,
+        y,
+        α,
+        λ,
+        params.n,
+        params.p,
+        params.m,
+        params.fit_intercept,
+        String(params.loss),
+        String(params.centering),
+        String(params.scaling),
+        params.path_length,
+        params.tol,
+        params.max_it,
+        params.q,
+        params.max_clusters,
+        params.dev_change_tol,
+        params.dev_ratio_tol,
+        params.α_min_ratio,
+        String(params.cd_type),
+        params.random_seed,
+        cv_params.n_folds,
+        cv_params.n_repeats,
+        String(cv_params.metric),
+        StdVector(cv_params.q),
+        StdVector(cv_params.γ),
+        StdVector(cv_params.fold_indices),
+    )
 end
 
 function slopecv_impl(
-  x::SparseMatrixCSC,
-  y,
-  α,
-  λ,
-  params::SlopeParameters,
-  cv_params::SlopeCvParameters,
-)
+        x::SparseMatrixCSC,
+        y,
+        α,
+        λ,
+        params::SlopeParameters,
+        cv_params::SlopeCvParameters,
+    )
 
-  SLOPE.cv_slope_sparse(
-    x.colptr,
-    x.rowval,
-    x.nzval,
-    y,
-    α,
-    λ,
-    params.n,
-    params.p,
-    params.m,
-    params.fit_intercept,
-    String(params.loss),
-    String(params.centering),
-    String(params.scaling),
-    params.path_length,
-    params.tol,
-    params.max_it,
-    params.q,
-    params.max_clusters,
-    params.dev_change_tol,
-    params.dev_ratio_tol,
-    params.α_min_ratio,
-    String(params.cd_type),
-    params.random_seed,
-    cv_params.n_folds,
-    cv_params.n_repeats,
-    String(cv_params.metric),
-    StdVector(cv_params.q),
-    StdVector(cv_params.γ),
-    StdVector(cv_params.fold_indices),
-  )
+    return SLOPE.cv_slope_sparse(
+        x.colptr,
+        x.rowval,
+        x.nzval,
+        y,
+        α,
+        λ,
+        params.n,
+        params.p,
+        params.m,
+        params.fit_intercept,
+        String(params.loss),
+        String(params.centering),
+        String(params.scaling),
+        params.path_length,
+        params.tol,
+        params.max_it,
+        params.q,
+        params.max_clusters,
+        params.dev_change_tol,
+        params.dev_ratio_tol,
+        params.α_min_ratio,
+        String(params.cd_type),
+        params.random_seed,
+        cv_params.n_folds,
+        cv_params.n_repeats,
+        String(cv_params.metric),
+        StdVector(cv_params.q),
+        StdVector(cv_params.γ),
+        StdVector(cv_params.fold_indices),
+    )
 end
 
 """
@@ -198,97 +198,96 @@ best_score = result.best_score
 
 """
 function slopecv(
-  x::Union{AbstractMatrix,SparseMatrixCSC},
-  y::AbstractVector;
-  α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Symbol,Nothing}=:bh,
-  γ::Union{AbstractVector,Real}=[0.0],
-  q::Union{AbstractVector}=[0.1],
-  n_folds::Int=10,
-  n_repeats::Int=1,
-  metric::Symbol=:mse,
-  kwargs...,
-)
-  params, y, α, λ, original_classes = process_slope_args(
-    x,
-    y,
-    α=α,
-    λ=λ,
-    kwargs...,
-  )
-
-  fold_indices = Int[]
-
-  for _ in 1:n_repeats
-    idx = randperm(params.n)
-    fold_indices = vcat(fold_indices, idx)
-  end
-
-  cv_params = SlopeCvParameters(
-    γ,
-    q,
-    n_folds,
-    n_repeats,
-    metric,
-    fold_indices
-  )
-
-  (
-    best_score,
-    best_ind,
-    best_alpha_ind,
-    param_name,
-    param_value,
-    path_lengths,
-    scores,
-    alphas,
-    mean_scores,
-    std_errors,
-  ) = slopecv_impl(x, y, α, λ, params, cv_params)
-
-  start_idx = 1
-
-  grid_results = Vector{SlopeGridResult}(undef, length(path_lengths))
-
-  param_grid = reshape(param_value, 2, length(path_lengths))
-
-  mean_scores_split = split_by_lengths(mean_scores, path_lengths)
-  std_errors_split = split_by_lengths(std_errors, path_lengths)
-  alphas_split = split_by_lengths(alphas, path_lengths)
-
-  for i in eachindex(path_lengths)
-    n_folds_repeats = cv_params.n_folds * cv_params.n_repeats
-    len = path_lengths[i] * n_folds_repeats
-    end_idx = start_idx + len - 1
-
-    scores_i = reshape(scores[start_idx:end_idx], n_folds_repeats, :)
-
-    params_i = Dict{String,Any}(
-      "q" => param_grid[findfirst(param_name .== 1), i],
-      "γ" => param_grid[findfirst(param_name .== 2), i],
+        x::Union{AbstractMatrix, SparseMatrixCSC},
+        y::AbstractVector;
+        α::Union{AbstractVector, Real, Nothing} = nothing,
+        λ::Union{AbstractVector, Symbol, Nothing} = :bh,
+        γ::Union{AbstractVector, Real} = [0.0],
+        q::Union{AbstractVector} = [0.1],
+        n_folds::Int = 10,
+        n_repeats::Int = 1,
+        metric::Symbol = :mse,
+        kwargs...,
+    )
+    params, y, α, λ, original_classes = process_slope_args(
+        x,
+        y,
+        α = α,
+        λ = λ,
+        kwargs...,
     )
 
-    grid_results[i] = SlopeGridResult(
-      params_i,
-      scores_i,
-      alphas_split[i],
-      mean_scores_split[i],
-      std_errors_split[i],
+    fold_indices = Int[]
+
+    for _ in 1:n_repeats
+        idx = randperm(params.n)
+        fold_indices = vcat(fold_indices, idx)
+    end
+
+    cv_params = SlopeCvParameters(
+        γ,
+        q,
+        n_folds,
+        n_repeats,
+        metric,
+        fold_indices
     )
 
-    start_idx += len
-  end
+    (
+        best_score,
+        best_ind,
+        best_alpha_ind,
+        param_name,
+        param_value,
+        path_lengths,
+        scores,
+        alphas,
+        mean_scores,
+        std_errors,
+    ) = slopecv_impl(x, y, α, λ, params, cv_params)
 
-  best_params = grid_results[best_ind+1].params
+    start_idx = 1
 
-  SlopeCvResult(
-    metric,
-    best_score,
-    best_ind,
-    best_alpha_ind,
-    best_params,
-    grid_results,
-  )
+    grid_results = Vector{SlopeGridResult}(undef, length(path_lengths))
+
+    param_grid = reshape(param_value, 2, length(path_lengths))
+
+    mean_scores_split = split_by_lengths(mean_scores, path_lengths)
+    std_errors_split = split_by_lengths(std_errors, path_lengths)
+    alphas_split = split_by_lengths(alphas, path_lengths)
+
+    for i in eachindex(path_lengths)
+        n_folds_repeats = cv_params.n_folds * cv_params.n_repeats
+        len = path_lengths[i] * n_folds_repeats
+        end_idx = start_idx + len - 1
+
+        scores_i = reshape(scores[start_idx:end_idx], n_folds_repeats, :)
+
+        params_i = Dict{String, Any}(
+            "q" => param_grid[findfirst(param_name .== 1), i],
+            "γ" => param_grid[findfirst(param_name .== 2), i],
+        )
+
+        grid_results[i] = SlopeGridResult(
+            params_i,
+            scores_i,
+            alphas_split[i],
+            mean_scores_split[i],
+            std_errors_split[i],
+        )
+
+        start_idx += len
+    end
+
+    best_params = grid_results[best_ind + 1].params
+
+    return SlopeCvResult(
+        metric,
+        best_score,
+        best_ind,
+        best_alpha_ind,
+        best_params,
+        grid_results,
+    )
 
 end
-

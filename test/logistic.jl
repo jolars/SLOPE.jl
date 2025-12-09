@@ -7,16 +7,16 @@ n = 10
 p = 3
 
 x = [
-  0.288 -0.0452 0.880;
-  0.788 0.576 -0.305;
-  1.510 0.390 -0.621;
-  -2.210 -1.120 -0.0449;
-  -0.0162 0.944 0.821;
-  0.594 0.919 0.782;
-  0.0746 -1.990 0.620;
-  -0.0561 -0.156 -1.470;
-  -0.478 0.418 1.360;
-  -0.103 0.388 -0.0538
+    0.288 -0.0452 0.88;
+    0.788 0.576 -0.305;
+    1.51 0.39 -0.621;
+    -2.21 -1.12 -0.0449;
+    -0.0162 0.944 0.821;
+    0.594 0.919 0.782;
+    0.0746 -1.99 0.62;
+    -0.0561 -0.156 -1.47;
+    -0.478 0.418 1.36;
+    -0.103 0.388 -0.0538
 ]
 
 # Fixed coefficients beta
@@ -35,58 +35,62 @@ y = Float64.(prob .> 0.5)
 lambda = [2.128045, 1.833915, 1.644854]
 
 @testset "No intercept, no standardization" begin
-  coef_target = [1.3808558, 0.0000000, 0.3205496]
+    coef_target = [1.3808558, 0.0, 0.3205496]
 
-  fit = slope(x, y;
-    λ=lambda,
-    loss=:logistic,
-    fit_intercept=false,
-    centering=:none,
-    scaling=:none,
-    α=α,
-    tol=1e-7)
+    fit = slope(
+        x, y;
+        λ = lambda,
+        loss = :logistic,
+        fit_intercept = false,
+        centering = :none,
+        scaling = :none,
+        α = α,
+        tol = 1.0e-7
+    )
 
-  coefs = fit.coefficients[1]
+    coefs = fit.coefficients[1]
 
-  @test isapprox(coefs, coef_target, atol=1e-6)
+    @test isapprox(coefs, coef_target, atol = 1.0e-6)
 end
 
 @testset "Intercept, no standardization" begin
-  coef_target = [1.2748806, 0.0, 0.2062611]
-  intercept_target = [0.3184528]
+    coef_target = [1.2748806, 0.0, 0.2062611]
+    intercept_target = [0.3184528]
 
-  fit = slope(x, y;
-    λ=lambda,
-    loss=:logistic,
-    fit_intercept=true,
-    centering=:none,
-    scaling=:none,
-    α=α,
-    tol=1e-7)
+    fit = slope(
+        x, y;
+        λ = lambda,
+        loss = :logistic,
+        fit_intercept = true,
+        centering = :none,
+        scaling = :none,
+        α = α,
+        tol = 1.0e-7
+    )
 
-  coefs = fit.coefficients[1]
-  intercept = fit.intercepts[1]
+    coefs = fit.coefficients[1]
+    intercept = fit.intercepts[1]
 
-  @test isapprox(intercept, intercept_target, atol=1e-4)
+    @test isapprox(intercept, intercept_target, atol = 1.0e-4)
 end
 
 @testset "Predictions" begin
-  Random.seed!(5)
+    Random.seed!(5)
 
-  n = 50
-  p = 3
+    n = 50
+    p = 3
 
-  x = rand(n, p)
-  β = [0.6, 0.0, -0.9]
+    x = rand(n, p)
+    β = [0.6, 0.0, -0.9]
 
-  eta = x * β
-  prob = 1.0 ./ (1.0 .+ exp.(-eta))
-  y = Float64.(prob .> 0.5)
+    eta = x * β
+    prob = 1.0 ./ (1.0 .+ exp.(-eta))
+    y = Float64.(prob .> 0.5)
 
-  res = slope(x, y, loss=:logistic)
+    res = slope(x, y, loss = :logistic)
 
-  predictions = predict(res, x)
+    predictions = predict(res, x)
 
-  @test length(predictions[1]) == n
-  @test unique(vcat([vec(pred) for pred in predictions]...)) ⊆ [0.0, 1.0]
+    @test length(predictions[1]) == n
+    @test unique(vcat([vec(pred) for pred in predictions]...)) ⊆ [0.0, 1.0]
 end

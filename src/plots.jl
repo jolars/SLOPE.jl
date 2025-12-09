@@ -1,23 +1,23 @@
 using SLOPE
 using RecipesBase
 
-function coefs(fit::SLOPE.SlopeFit, response=1)
-  coef = fit.coefficients
-  path_length = length(coef)
-  p, m = size(coef[1])
-  coef_matrix = zeros(p, path_length)
+function coefs(fit::SLOPE.SlopeFit, response = 1)
+    coef = fit.coefficients
+    path_length = length(coef)
+    p, m = size(coef[1])
+    coef_matrix = zeros(p, path_length)
 
-  if response < 1 || response > m
-    error("Response index must be between 1 and $m.")
-  end
-
-  for (i, coef) in enumerate(coef)
-    for row in 1:p
-      coef_matrix[row, i] = coef[row, response]
+    if response < 1 || response > m
+        error("Response index must be between 1 and $m.")
     end
-  end
 
-  return coef_matrix'
+    for (i, coef) in enumerate(coef)
+        for row in 1:p
+            coef_matrix[row, i] = coef[row, response]
+        end
+    end
+
+    return coef_matrix'
 end
 
 """
@@ -68,25 +68,25 @@ plot(fit, xvar=:step)
 plot(fit, title="SLOPE Coefficient Paths", lw=2)
 ```
 """
-@recipe function f(fit::SLOPE.SlopeFit; xvar=:α, response=1)
-  if xvar == :α
-    xscale --> :ln
-    xlabel --> "α"
-    x = fit.α
-  elseif xvar == :step
-    xflip --> true
-    xlabel --> "Step"
-    x = 1:length(fit.α)
-  else
-    error("Invalid xvar: $xvar. Use :α or :step.")
-  end
+@recipe function f(fit::SLOPE.SlopeFit; xvar = :α, response = 1)
+    if xvar == :α
+        xscale --> :ln
+        xlabel --> "α"
+        x = fit.α
+    elseif xvar == :step
+        xflip --> true
+        xlabel --> "Step"
+        x = 1:length(fit.α)
+    else
+        error("Invalid xvar: $xvar. Use :α or :step.")
+    end
 
-  legend --> :none
-  ylabel --> "β"
+    legend --> :none
+    ylabel --> "β"
 
-  y = coefs(fit, response)
+    y = coefs(fit, response)
 
-  x, y
+    x, y
 end
 
 """
@@ -126,32 +126,31 @@ cvresult = slopecv(x, y, n_folds=5)
 plot(cvresult)
 ```
 """
-@recipe function g(cvresult::SLOPE.SlopeCvResult; xvar=:α, index=1)
-  if index < 1 || index > length(cvresult.results)
-    error("Index must be between 1 and $(length(cvresult.results)).")
-  end
+@recipe function g(cvresult::SLOPE.SlopeCvResult; xvar = :α, index = 1)
+    if index < 1 || index > length(cvresult.results)
+        error("Index must be between 1 and $(length(cvresult.results)).")
+    end
 
-  res = cvresult.results[index]
+    res = cvresult.results[index]
 
-  if xvar == :α
-    xscale --> :ln
-    xlabel --> "α"
-    x = res.alphas
-  elseif xvar == :step
-    xflip --> true
-    xlabel --> "Step"
-    x = 1:length(res.alphas)
-  else
-    error("Invalid xvar: $xvar. Use :α or :step.")
-  end
+    if xvar == :α
+        xscale --> :ln
+        xlabel --> "α"
+        x = res.alphas
+    elseif xvar == :step
+        xflip --> true
+        xlabel --> "Step"
+        x = 1:length(res.alphas)
+    else
+        error("Invalid xvar: $xvar. Use :α or :step.")
+    end
 
-  legend --> :none
-  ylabel --> cvresult.metric
+    legend --> :none
+    ylabel --> cvresult.metric
 
-  y = res.scores_means
+    y = res.scores_means
 
-  ribbon --> res.scores_errors
+    ribbon --> res.scores_errors
 
-  x, y
+    x, y
 end
-
