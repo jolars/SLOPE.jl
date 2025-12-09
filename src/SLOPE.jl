@@ -17,12 +17,15 @@ include("regweights.jl")
 include("models.jl")
 include("cv.jl")
 include("plots.jl")
+include("coef.jl")
 
 export regweights
 
 export slope
 export slopecv
+
 export predict
+export coef
 
 export SlopeFit
 export SlopeCvResult
