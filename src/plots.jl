@@ -47,6 +47,26 @@ as the regularization strength varies.
 
 # Returns
 A plot object showing the coefficient paths
+
+# Examples
+```julia
+using SLOPE
+using Plots
+
+# Fit a SLOPE model
+x = randn(100, 20)
+y = x[:, 1:5] * ones(5) + randn(100)
+fit = slope(x, y)
+
+# Plot coefficient paths against alpha
+plot(fit)
+
+# Plot against step number instead
+plot(fit, xvar=:step)
+
+# Customize the plot
+plot(fit, title="SLOPE Coefficient Paths", lw=2)
+```
 """
 @recipe function f(fit::SLOPE.SlopeFit; xvar=:α, response=1)
   if xvar == :α
@@ -92,6 +112,19 @@ Plots the cross-validation results from a cross-validated SLOPE model.
 
 # Returns
 A plot object showing the cross-validation error, with ribbons for standard error.
+
+# Examples
+```julia
+using SLOPE, Plots
+
+# Fit a cross-validated SLOPE model
+x = randn(100, 20)
+y = x[:, 1:5] * ones(5) + randn(100)
+cvresult = slopecv(x, y, n_folds=5)
+
+# Plot cross-validation results
+plot(cvresult)
+```
 """
 @recipe function g(cvresult::SLOPE.SlopeCvResult; xvar=:α, index=1)
   if index < 1 || index > length(cvresult.results)
