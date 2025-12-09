@@ -1,5 +1,3 @@
-
-
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.png' align="right" height="139" /></a>
@@ -8,6 +6,7 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
 [![Build
 Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
+[![DOI](https://zenodo.org/badge/983942467.svg)](https://doi.org/10.5281/zenodo.17865903)
 
 SLOPE is a Julia package for fitting the Sorted L-One Penalized
 Estimation (SLOPE) model, which is a regularization technique for
@@ -18,7 +17,7 @@ the coefficients.
 
 You can install the package using the Julia package manager:
 
-``` julia
+```julia
 using Pkg
 Pkg.add("SLOPE")
 ```
@@ -26,14 +25,14 @@ Pkg.add("SLOPE")
 You can also install the latest development version directly from
 GitHub:
 
-``` julia
+```julia
 using Pkg
 Pkg.add(url = "https://github.com/jolars/SLOPE.jl")
 ```
 
 ## Getting Started
 
-``` julia
+```julia
 using SLOPE
 using Random
 using LinearAlgebra
@@ -55,7 +54,7 @@ res = slope(x, y)
 
 You can then plot the results:
 
-``` julia
+```julia
 using Plots
 
 plot(res)
