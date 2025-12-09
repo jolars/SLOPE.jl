@@ -142,7 +142,7 @@ end
       x,
       y;
       α=nothing,
-      λ=nothing,
+      λ=:bh,
       γ=[0.0],
       q=[0.1],
       n_folds=10,
@@ -161,12 +161,17 @@ Perform cross-validation for SLOPE to find optimal hyperparameters.
 # Keyword Arguments
 
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: SLOPE regularization path. If `nothing`, it's automatically generated.
-- `λ::Union{AbstractVector,Nothing}=nothing`: Sequence of regularization parameters. If `nothing`, it's automatically generated.
-- `γ::Union{AbstractVector,Real}=[0.0]`: Parameter controlling the regularization sequence. Multiple values create a grid search.
-- `q::Union{AbstractVector}=[0.1]`: FDR parameter for BH sequence. Multiple values create a grid search.
+- `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Sequence of regularization
+  parameters. If `nothing`, it uses the default BH sequence (`:bh`).
+- `γ::Union{AbstractVector,Real}=[0.0]`: Parameter controlling the
+  regularization sequence. Multiple values create a grid search.
+- `q::Union{AbstractVector}=[0.1]`: FDR parameter for BH sequence. Multiple
+  values create a grid search.
 - `n_folds::Int=10`: Number of cross-validation folds.
-- `n_repeats::Int=1`: Number of times to repeat the CV process with different fold assignments.
-- `metric::Symbol=:mse`: Evaluation metric for cross-validation. Options include `:mse`, `:mae`, `:accuracy`, etc.
+- `n_repeats::Int=1`: Number of times to repeat the CV process with different
+  fold assignments.
+- `metric::Symbol=:mse`: Evaluation metric for cross-validation. Options
+  include `:mse`, `:mae`, `:accuracy`, etc.
 - `kwargs...`: Additional parameters passed to the SLOPE solver.
 
 # Returns
@@ -196,7 +201,7 @@ function slopecv(
   x::Union{AbstractMatrix,SparseMatrixCSC},
   y::AbstractVector;
   α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Nothing}=nothing,
+  λ::Union{AbstractVector,Symbol,Nothing}=:bh,
   γ::Union{AbstractVector,Real}=[0.0],
   q::Union{AbstractVector}=[0.1],
   n_folds::Int=10,

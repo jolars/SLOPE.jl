@@ -24,7 +24,7 @@ function process_slope_args(
   x::Union{AbstractMatrix,SparseMatrixCSC},
   y::AbstractVector;
   α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Nothing}=nothing,
+  λ::Union{AbstractVector,Nothing,Symbol}=:bh,
   fit_intercept::Bool=true,
   loss::Symbol=:quadratic,
   centering::Symbol=:mean,
@@ -72,6 +72,10 @@ function process_slope_args(
 
   if isnothing(λ)
     λ = Float64[]
+  end
+
+  if isa(λ, Symbol)
+    λ = regweights(p*m; q=q, type=λ, n=n)
   end
 
   if isnothing(α_min_ratio)
@@ -239,7 +243,8 @@ encouraging both sparsity and grouping of features.
 
 # Keyword Arguments
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path
-- `λ::Union{AbstractVector,Nothing}=nothing`: Lambda sequence for regularization path
+- `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Lambda sequence for regularization path. Can
+  be a vector or a symbol indicating the type of sequence to generate. If `nothing`, the value `:bh` is used.
 - `fit_intercept::Bool=true`: Whether to fit an intercept term
 - `loss::Symbol=:quadratic`: Type of loss function
 - `centering::Symbol=:mean`: Method for centering predictors
@@ -266,7 +271,7 @@ function slope(
   x::Union{AbstractMatrix,SparseMatrixCSC},
   y::AbstractVector;
   α::Union{AbstractVector,Real,Nothing}=nothing,
-  λ::Union{AbstractVector,Nothing}=nothing,
+  λ::Union{AbstractVector,Nothing,Symbol}=:bh,
   fit_intercept::Bool=true,
   loss::Symbol=:quadratic,
   centering::Symbol=:mean,
