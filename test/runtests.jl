@@ -23,6 +23,10 @@ using Aqua
     include("cv.jl")
   end
 
+  @testset "Regularization Weights" begin
+    include("regweights.jl")
+  end
+
   @testset "Aqua" begin
     Aqua.test_all(SLOPE)
   end

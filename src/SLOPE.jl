@@ -13,9 +13,12 @@ function __init__()
 end
 
 include("utils.jl")
+include("regweights.jl")
 include("models.jl")
 include("cv.jl")
 include("plots.jl")
+
+export regweights
 
 export slope
 export slopecv
