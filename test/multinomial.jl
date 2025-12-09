@@ -48,7 +48,6 @@ y = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2]
     @test_nowarn fit = slope(
         x,
         y,
-        α = α,
         λ = λ,
         loss = :multinomial,
         fit_intercept = true,

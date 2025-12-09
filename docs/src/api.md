@@ -16,6 +16,7 @@ The main entry point for fitting SLOPE models is the
 ```@docs
 SLOPE.slope
 SLOPE.SlopeFit
+SLOPE.coef
 ```
 
 ## Cross-Validation

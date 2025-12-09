@@ -27,6 +27,10 @@ using Aqua
         include("regweights.jl")
     end
 
+    @testset "Coefficients" begin
+        include("coef.jl")
+    end
+
     @testset "Aqua" begin
         Aqua.test_all(SLOPE)
     end
