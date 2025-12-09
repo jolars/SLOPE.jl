@@ -1,7 +1,7 @@
 name = "SLOPE"
 uuid = "56cf27a2-3bf1-11f0-14fe-11f76b7dfe56"
 authors = ["Johan Larsson <johan@jolars.co> and contributors"]
-version = "1.1.0"
+version = "1.2.0"
 
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
