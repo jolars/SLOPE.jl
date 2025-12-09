@@ -29,7 +29,6 @@
             pkgs.pkg-config
             pkgs.nodejs
             pkgs.julia-bin
-            pkgs.quartoMinimal
           ];
           runScript = "bash";
         };

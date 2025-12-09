@@ -1,8 +1,0 @@
-[deps]
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-SLOPE = "56cf27a2-3bf1-11f0-14fe-11f76b7dfe56"
-Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-
-[compat]
-Random = "1.7.3"
-Plots = "1.40.13"

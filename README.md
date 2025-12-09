@@ -61,7 +61,7 @@ using Plots
 plot(res)
 ```
 
-![](README_files/figure-commonmark/cell-5-output-1.svg)
+![](images/readme-example.svg)
 
 ## Contributing
 
