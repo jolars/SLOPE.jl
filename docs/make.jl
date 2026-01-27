@@ -9,6 +9,7 @@ makedocs(
     modules = [SLOPE],
     pages = [
         "Home" => "index.md",
+        "Tutorial" => "tutorial.md",
         "API Reference" => "api.md",
     ]
 )
