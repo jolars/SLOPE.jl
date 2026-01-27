@@ -62,6 +62,14 @@ plot(res)
 
 ![](images/readme-example.svg)
 
+## Ecosystem
+
+SLOPE is also available as a
+
+- Python package: [sortedl1](https://pypi.org/project/sortedl1/)
+- R package: [SLOPE](https://cran.r-project.org/package=SLOPE)
+- C++ library: [libslope](https://github.com/jolars/libslope)
+
 ## Contributing
 
 This package is a thin wrapper around
