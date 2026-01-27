@@ -29,6 +29,7 @@
             pkgs.pkg-config
             pkgs.nodejs
             pkgs.julia-bin
+            pkgs.go-task
           ];
           runScript = "bash";
         };
