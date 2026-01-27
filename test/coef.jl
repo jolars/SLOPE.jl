@@ -73,6 +73,55 @@ using Random
         @test size(coef_mat) == (p_size, m_size)
     end
 
+    @testset "Alpha parameter" begin
+        Random.seed!(321)
+        n, p = 50, 10
+        x = randn(n, p)
+        y = x[:, 1:3] * ones(3) + randn(n)
+        fit = slope(x, y)
+
+        alphas = fit.α
+
+        # Test exact alpha match
+        alpha_mid = alphas[div(length(alphas), 2)]
+        coef_exact = coef(fit, α = alpha_mid)
+        coef_idx = coef(fit, index = div(length(alphas), 2))
+        @test coef_exact ≈ Matrix(coef_idx)
+
+        # Test interpolation between two alphas
+        idx1 = 10
+        idx2 = 11
+        alpha_between = (alphas[idx1] + alphas[idx2]) / 2
+        coef_interp = coef(fit, α = alpha_between)
+
+        # Verify it's between the two coefficient sets
+        coef1 = Matrix(fit.coefficients[idx1])
+        coef2 = Matrix(fit.coefficients[idx2])
+        @test size(coef_interp) == size(coef1)
+
+        # Check interpolation is reasonable (should be between the two)
+        for i in 1:length(coef_interp)
+            if coef1[i] != coef2[i]
+                min_val = min(coef1[i], coef2[i])
+                max_val = max(coef1[i], coef2[i])
+                @test min_val <= coef_interp[i] <= max_val || 
+                      isapprox(coef_interp[i], min_val, atol=1e-10) || 
+                      isapprox(coef_interp[i], max_val, atol=1e-10)
+            end
+        end
+
+        # Test with simplify=true
+        coef_vec = coef(fit, α = alpha_between, simplify = true)
+        @test isa(coef_vec, Vector)
+        @test length(coef_vec) == p
+
+        # Test boundary alphas
+        coef_min = coef(fit, α = minimum(alphas))
+        coef_max = coef(fit, α = maximum(alphas))
+        @test size(coef_min) == (p, 1)
+        @test size(coef_max) == (p, 1)
+    end
+
     @testset "Error handling" begin
         Random.seed!(789)
         n, p = 30, 5
@@ -80,10 +129,19 @@ using Random
         y = randn(n)
         fit = slope(x, y)
         path_length = length(fit.coefficients)
+        alphas = fit.α
 
         # Test out of bounds index
         @test_throws BoundsError coef(fit, index = 0)
         @test_throws BoundsError coef(fit, index = path_length + 1)
         @test_throws BoundsError coef(fit, index = -1)
+
+        # Test invalid alpha combinations
+        @test_throws ArgumentError coef(fit, index = 1, α = 0.5)
+        @test_throws ArgumentError coef(fit, α = 0.5, refit = true)
+
+        # Test alpha out of range
+        @test_throws ArgumentError coef(fit, α = minimum(alphas) - 1)
+        @test_throws ArgumentError coef(fit, α = maximum(alphas) + 1)
     end
 end
