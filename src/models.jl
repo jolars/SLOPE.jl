@@ -6,6 +6,7 @@ struct SlopeParameters
     m::Int
     fit_intercept::Bool
     loss::Symbol
+    λtype::Symbol
     centering::Symbol
     scaling::Symbol
     path_length::Int
@@ -47,6 +48,8 @@ function process_slope_args(
 
     unique_classes = nothing
 
+    λtype = :bh
+
     if loss == :multinomial
         unique_classes = sort(unique(y))
         n_classes = length(unique_classes)
@@ -75,6 +78,7 @@ function process_slope_args(
     end
 
     if isa(λ, Symbol)
+        λtype = λ
         λ = regweights(p * m; q = q, type = λ, n = n)
     end
 
@@ -88,6 +92,7 @@ function process_slope_args(
         m,
         fit_intercept,
         loss,
+        λtype,
         centering,
         scaling,
         path_length,
@@ -173,6 +178,7 @@ function fitslope(
         params.m,
         params.fit_intercept,
         String(params.loss),
+        String(params.λtype),
         String(params.centering),
         String(params.scaling),
         params.path_length,
@@ -222,6 +228,7 @@ function fitslope(
         params.m,
         params.fit_intercept,
         String(params.loss),
+        String(params.λtype),
         String(params.centering),
         String(params.scaling),
         params.path_length,

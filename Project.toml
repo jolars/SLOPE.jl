@@ -25,7 +25,7 @@ SparseArrays = "1.7.3"
 StatsBase = "0.34.9"
 Test = "1.6"
 julia = "1.7"
-slope_jll = "5.1.1"
+slope_jll = "6.3"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
