@@ -110,11 +110,7 @@ function coef(fit::SlopeFit; index::Union{Int, Nothing} = nothing,
     end
 end
 
-"""
-    _coef_at_alpha(fit::SlopeFit, alpha::Real, simplify::Bool)
-
-Internal function to extract or interpolate coefficients at a specific alpha value.
-"""
+# Internal function to extract or interpolate coefficients at a specific alpha value.
 function _coef_at_alpha(fit::SlopeFit, alpha::Real, simplify::Bool)
     alphas = fit.α
     
