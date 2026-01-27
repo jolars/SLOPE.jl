@@ -55,6 +55,56 @@ struct SlopeCvResult
     results::Vector{SlopeGridResult}
 end
 
+function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
+    n_params = length(cv.results)
+    best_result = cv.results[cv.best_ind]
+    n_alphas = length(best_result.alphas)
+
+    println(io, "SLOPE cross-validation results")
+    println(io)
+    println(io, "Metric: ", cv.metric)
+    println(io, "Best score: ", round(cv.best_score, sigdigits=4))
+    println(io)
+    println(io, "Best parameters:")
+    for (key, val) in sort(collect(cv.best_params))
+        if val isa AbstractFloat
+            println(io, "  ", key, ": ", round(val, sigdigits=4))
+        else
+            println(io, "  ", key, ": ", val)
+        end
+    end
+    println(io)
+    println(io, "Grid search:")
+    println(io, "  Parameter combinations: ", n_params)
+    println(io, "  Alpha values per combination: ", n_alphas)
+
+    # Show summary of all parameter combinations if more than 1
+    if n_params > 1
+        println(io)
+        println(io, "Parameter combination scores:")
+        for (i, result) in enumerate(cv.results)
+            best_score_for_combo = minimum(result.scores_means)
+            marker = i == cv.best_ind ? " *" : ""
+            print(io, "  ", i, ". ")
+            param_str = join(["$(k)=$(round(v, sigdigits=3))" for (k, v) in sort(collect(result.params))], ", ")
+            if i < n_params
+                println(io, param_str, ": ", round(best_score_for_combo, sigdigits=4), marker)
+            else
+                print(io, param_str, ": ", round(best_score_for_combo, sigdigits=4), marker)
+            end
+        end
+    end
+end
+
+# Compact display
+function Base.show(io::IO, cv::SlopeCvResult)
+    print(io, "SlopeCvResult(")
+    print(io, "metric=", cv.metric, ", ")
+    print(io, "best_score=", round(cv.best_score, sigdigits=4), ", ")
+    print(io, "n_combinations=", length(cv.results))
+    print(io, ")")
+end
+
 function slopecv_impl(
         x::AbstractMatrix,
         y,
