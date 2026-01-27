@@ -154,6 +154,77 @@ struct SlopeFit
     classes::Union{Vector, Nothing}
 end
 
+function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
+    n_solutions = length(fit.α)
+    p = size(fit.coefficients[1], 1)
+    has_intercept = !isempty(fit.intercepts)
+
+    # Count non-zero coefficients for each solution
+    n_nonzero = [nnz(coef) for coef in fit.coefficients]
+
+    # Family name mapping
+    family_map = Dict(
+        :quadratic => "gaussian",
+        :logistic => "binomial",
+        :multinomial => "multinomial"
+    )
+    family = get(family_map, fit.loss, string(fit.loss))
+    
+    println(io, "SLOPE fit")
+    println(io)
+    println(io, "Family: ", family)
+    println(io, "Predictors: ", p)
+    println(io, "Intercept: ", has_intercept ? "Yes" : "No")
+    if fit.m > 1
+        println(io, "Classes: ", fit.m)
+    end
+    println(io)
+    println(io, "Regularization path:")
+    println(io, "  Length: ", n_solutions, " steps")
+    println(io, "  Alpha range: ", round(minimum(fit.α), sigdigits=3), " to ", round(maximum(fit.α), sigdigits=3))
+    println(io)
+
+    # Show first and last 5 steps
+    n_show = min(5, n_solutions)
+    println(io, "Path summary (first and last ", n_show, " steps):")
+
+    # Header
+    println(io, "  ", rpad("alpha", 12), rpad("n_nonzero", 12))
+
+    # First n_show
+    for i in 1:n_show
+        println(io, "  ", rpad(round(fit.α[i], sigdigits=3), 12), rpad(n_nonzero[i], 12))
+    end
+
+    # Ellipsis if there are more than 2*n_show solutions
+    if n_solutions > 2 * n_show
+        println(io, "  ...")
+    end
+
+    # Last n_show
+    if n_solutions > n_show
+        start_idx = max(n_show + 1, n_solutions - n_show + 1)
+        for i in start_idx:n_solutions-1
+            println(io, "  ", rpad(round(fit.α[i], sigdigits=3), 12), rpad(n_nonzero[i], 12))
+        end
+        # Last line without newline
+        print(io, "  ", rpad(round(fit.α[n_solutions], sigdigits=3), 12), rpad(n_nonzero[n_solutions], 12))
+    end
+end
+
+# Compact one-line display for inline printing
+function Base.show(io::IO, fit::SlopeFit)
+    n_solutions = length(fit.α)
+    p = size(fit.coefficients[1], 1)
+    
+    print(io, "SlopeFit(")
+    print(io, "loss=", fit.loss, ", ")
+    print(io, "n_solutions=", n_solutions, ", ")
+    print(io, "n_features=", p, ", ")
+    print(io, "n_classes=", fit.m)
+    print(io, ")")
+end
+
 function fitslope(
         x::AbstractMatrix,
         y,
