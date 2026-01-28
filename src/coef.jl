@@ -55,24 +55,26 @@ fit_multi = slope(x, y, loss=:multinomial)
 coef_array = coef(fit_multi, simplify=true)  # Returns p×m×path_length array
 ```
 """
-function coef(fit::SlopeFit; index::Union{Int, Nothing} = nothing, 
-              α::Union{Real, Nothing} = nothing, 
-              simplify::Bool = false, 
-              refit::Bool = false)
-    
+function coef(
+        fit::SlopeFit; index::Union{Int, Nothing} = nothing,
+        α::Union{Real, Nothing} = nothing,
+        simplify::Bool = false,
+        refit::Bool = false
+    )
+
     if !isnothing(index) && !isnothing(α)
         throw(ArgumentError("Cannot specify both `index` and `α`. Choose one."))
     end
-    
+
     if refit && !isnothing(α)
         throw(ArgumentError("`refit=true` is not yet implemented. Only interpolation is supported."))
     end
-    
+
     # Handle alpha parameter
     if !isnothing(α)
         return _coef_at_alpha(fit, α, simplify)
     end
-    
+
     coefs = fit.coefficients
     path_length = length(coefs)
 
@@ -113,40 +115,40 @@ end
 # Internal function to extract or interpolate coefficients at a specific alpha value.
 function _coef_at_alpha(fit::SlopeFit, alpha::Real, simplify::Bool)
     alphas = fit.α
-    
+
     if alpha < minimum(alphas) || alpha > maximum(alphas)
         throw(ArgumentError("alpha=$alpha is outside the fitted path range [$(minimum(alphas)), $(maximum(alphas))]"))
     end
-    
+
     # Check if alpha is exactly in the path
     idx = findfirst(≈(alpha), alphas)
     if !isnothing(idx)
-        return coef(fit, index=idx, simplify=simplify)
+        return coef(fit, index = idx, simplify = simplify)
     end
-    
+
     # Find bracketing alphas for interpolation
     # Alpha decreases along the path, so we need the indices where alpha is between two values
     idx_upper = findfirst(α -> α <= alpha, alphas)
-    
+
     if isnothing(idx_upper) || idx_upper == 1
         # Alpha is at or beyond the first point
-        return coef(fit, index=1, simplify=simplify)
+        return coef(fit, index = 1, simplify = simplify)
     end
-    
+
     idx_lower = idx_upper - 1
     alpha_lower = alphas[idx_lower]
     alpha_upper = alphas[idx_upper]
-    
+
     # Linear interpolation weight
     weight = (alpha - alpha_upper) / (alpha_lower - alpha_upper)
-    
+
     # Get coefficients at both points
     coef_lower = Matrix(fit.coefficients[idx_lower])
     coef_upper = Matrix(fit.coefficients[idx_upper])
-    
+
     # Interpolate
     coef_interp = weight * coef_lower + (1 - weight) * coef_upper
-    
+
     # Return in appropriate format
     p, m = size(coef_interp)
     if simplify && m == 1
