@@ -166,7 +166,8 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
     family_map = Dict(
         :quadratic => "gaussian",
         :logistic => "binomial",
-        :multinomial => "multinomial"
+        :multinomial => "multinomial",
+        :poisson => "poisson"
     )
     family = get(family_map, fit.loss, string(fit.loss))
 
@@ -335,26 +336,39 @@ encouraging both sparsity and grouping of features.
 - `y`: Response variable (vector)
 
 # Keyword Arguments
-- `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path
-- `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Lambda sequence for regularization path. Can
-  be a vector or a symbol indicating the type of sequence to generate. If `nothing`, the value `:bh` is used.
+- `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path.
+  If `nothing`, a sequence is automatically generated.
+- `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Lambda (penalty weights) sequence. Can
+  be a vector of custom weights, or a symbol specifying the sequence type:
+  - `:bh`: Benjamini-Hochberg sequence
+  - `:gaussian`: Gaussian sequence
+  - `:oscar`: Octagonal Shrinkage and Clustering Algorithm for Regression
+  - `:lasso`: Lasso (all weights equal to 1.0)
+  If `nothing`, defaults to `:bh`.
 - `fit_intercept::Bool=true`: Whether to fit an intercept term
-- `loss::Symbol=:quadratic`: Type of loss function
-- `centering::Symbol=:mean`: Method for centering predictors
-- `scaling::Symbol=:sd`: Method for scaling predictors
+- `loss::Symbol=:quadratic`: Loss function type. Options: 
+  - `:quadratic`: Gaussian (continuous response)
+  - `:logistic`: Binomial (binary classification)
+  - `:multinomial`: Multinomial (multi-class classification)
+  - `:poisson`: Poisson (count data)
+- `centering::Symbol=:mean`: Predictor centering method. Options: `:mean` (center by mean), 
+  `:none` (no centering)
+- `scaling::Symbol=:sd`: Predictor scaling method. Options: `:sd` (scale by standard deviation), 
+  `:none` (no scaling)
 - `path_length::Int=100`: Number of regularization path points
 - `tol::Float64=1e-5`: Convergence tolerance for optimization
 - `max_it::Int=10000`: Maximum number of iterations
-- `q::Float64=0.1`: Parameter controlling the shape of the penalty
-  weights sequence. Should be in the range (0, 1). 
-- `max_clusters::Union{Int,Nothing}=nothing`: Early path stopping
-  criteria for maximum number of clusters (defaults to n+1) 
-- `dev_change_tol::Float64=1e-5`: Early path stopping criteria for tolerance for
-  change in deviance 
-- `dev_ratio_tol::Float64=0.999`: Early path stopping
-  criteria for tolerance for ratio of deviance
+- `q::Float64=0.1`: Parameter controlling the shape of the penalty weights sequence. 
+  Should be in the range (0, 1).
+- `max_clusters::Union{Int,Nothing}=nothing`: Early path stopping criterion for maximum 
+  number of clusters (defaults to n+1)
+- `dev_change_tol::Float64=1e-5`: Early path stopping criterion for tolerance of change in deviance
+- `dev_ratio_tol::Float64=0.999`: Early path stopping criterion for tolerance of deviance ratio
 - `α_min_ratio::Union{Float64,Nothing}=nothing`: Fraction of maximum `α` to use as minimum
   value in the regularization path. Defaults to `1e-2` if `n > p * m`, otherwise `1e-4`.
+- `cd_type::Symbol=:permuted`: Coordinate descent update type. Options: `:permuted` (random 
+  permutation order), `:cyclic` (sequential order)
+- `random_seed::Int=0`: Random seed for reproducibility
 
 # Returns
 A [`SlopeFit`](@ref) object.
@@ -373,6 +387,16 @@ fit = slope(x, y, q=0.05, path_length=50)
 
 # Use OSCAR-type lambda sequence
 fit = slope(x, y, λ=:oscar)
+
+# Logistic regression
+x = randn(100, 10)
+y = rand([0, 1], 100)
+fit = slope(x, y, loss=:logistic)
+
+# Poisson regression (count data)
+x = randn(100, 10)
+y = rand(0:10, 100)
+fit = slope(x, y, loss=:poisson)
 
 # Multinomial classification
 x = randn(150, 10)
@@ -484,6 +508,48 @@ function slope(
     )
 end
 
+"""
+    predict(fit::SlopeFit, x) -> Vector{Matrix{Float64}}
+
+Generate predictions from a fitted SLOPE model.
+
+Returns predictions for each point along the regularization path. For regression models,
+predictions are continuous values. For classification models (logistic, multinomial), 
+predictions are class probabilities or predicted class labels depending on the loss function.
+
+# Arguments
+- `fit::SlopeFit`: A fitted SLOPE model from [`slope`](@ref)
+- `x::Union{AbstractMatrix,SparseMatrixCSC}`: Predictor matrix (n × p)
+
+# Returns
+A vector of prediction matrices, one for each point in the regularization path.
+Each matrix has dimensions (n × m), where n is the number of observations and m 
+depends on the model type:
+- For regression (`:quadratic`): m = 1 (predicted values)
+- For Poisson (`:poisson`): m = 1 (predicted counts/rates)
+- For logistic (`:logistic`): m = 1 (predicted probabilities)
+- For multinomial (`:multinomial`): m = number of classes (class probabilities)
+
+# Examples
+```julia
+using SLOPE
+
+# Regression
+x = randn(100, 10)
+y = randn(100)
+fit = slope(x, y)
+x_new = randn(20, 10)
+predictions = predict(fit, x_new)
+predictions[1]  # Predictions at first regularization point
+
+# Classification
+x = randn(100, 10)
+y = rand([0, 1], 100)
+fit = slope(x, y, loss=:logistic)
+predictions = predict(fit, x_new)
+predictions[end]  # Predictions at last regularization point
+```
+"""
 function predict(fit::SlopeFit, x::Union{AbstractMatrix, SparseMatrixCSC})
     path_length = length(fit.α)
     predictions = Vector{Matrix{Float64}}(undef, path_length)
