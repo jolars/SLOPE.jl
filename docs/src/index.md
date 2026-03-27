@@ -18,34 +18,29 @@ Pkg.add(url = "https://github.com/jolars/SLOPE.jl")
 
 ## Getting Started
 
-SLOPE is a Julia package for Sorted L1 Penalized Estimation (SLOPE), which
-is a type of regularized regression. SLOPE minimizes the following
-objective function:
+SLOPE is a Julia package for Sorted L1 Penalized Estimation (SLOPE), which is a
+type of regularized regression. SLOPE minimizes the following objective
+function:
 
 ```math
 \frac{1}{n} \sum_{i=1}^n f(y_i, x_i^\intercal \beta) + \alpha \sum_{j=1}^p \lambda_j |\beta_{(j)}|.
 ```
 
-where $f(y,\eta)$ is the negative log-likelihood contribution of
-a single observation $(y, \eta)$. $\beta_{(j)}$ is the $j$-th
-coefficient, $\beta_0$ is the intercept, and $\lambda$ is a
-decreasing sequence of regularization weights. $x_i$ is the
-$i$th row of the design matrix, and $n$ is the number of
+where $f(y,\eta)$ is the negative log-likelihood contribution of a single
+observation $(y, \eta)$. $\beta_{(j)}$ is the $j$-th coefficient, $\beta_0$ is
+the intercept, and $\lambda$ is a decreasing sequence of regularization weights.
+$x_i$ is the $i$th row of the design matrix, and $n$ is the number of
 observations.
 
-SLOPE is a type of sparse regression, which means that
-it will, given high enough penalization, set some of the
-coefficients to zero, effectively removing the
-corresponding features from the model. If you are familiar
-with the lasso, then you should know that SLOPE is
-actually a generalization of the lasso (which you can
-see by setting all $\lambda_j$ to the same value).
-Unlike the lasso, however, SLOPE also clusters
-coefficients by settings them to the same magnitude.
-This helps remove some deficiencies of the lasso
-in highly correlated settings, and it also
-allows for selection of more features that is
-possible with the lasso.
+SLOPE is a type of sparse regression, which means that it will, given high
+enough penalization, set some of the coefficients to zero, effectively removing
+the corresponding features from the model. If you are familiar with the lasso,
+then you should know that SLOPE is actually a generalization of the lasso (which
+you can see by setting all $\lambda_j$ to the same value). Unlike the lasso,
+however, SLOPE also clusters coefficients by settings them to the same
+magnitude. This helps remove some deficiencies of the lasso in highly correlated
+settings, and it also allows for selection of more features that is possible
+with the lasso.
 
 ### Basic Usage
 
@@ -83,9 +78,22 @@ To determine the optimal regularization strength, you can use cross-validation:
 # Perform cross-validation to find optimal parameters
 cvfit = slopecv(X, y)
 
-# View the optimal α value
+# Inspect selected tuning values
 cvfit.best_params
+best_α(cvfit)
+
+# Retrieve final model fitted on all data at selected setting
+fit_cv = best_model(cvfit)
 ```
+
+`best_model(cvfit)` is currently available when the selected `γ` value is `0.0`.
+
+### Positioning relative to L1 tooling
+
+SLOPE.jl focuses on sorted-L1 (SLOPE) paths and cross-validation around that
+penalty. Compared with broader L1 ecosystems (for example, lasso-focused
+packages), SLOPE.jl is specialized and intentionally lightweight as a wrapper
+around `libslope`.
 
 ## Contributing
 
@@ -95,7 +103,6 @@ functionality. Therefore, if you find any bugs or have feature requests, then
 it's likely that you should open a ticket in the slope repository rather than
 here.
 
-That being said, if you find any bugs in the Julia wrapper
-or there are features in the C++ library that are yet to
-be implemented in the Julia wrapper, then please open an issue
-in this repository.
+That being said, if you find any bugs in the Julia wrapper or there are features
+in the C++ library that are yet to be implemented in the Julia wrapper, then
+please open an issue in this repository.

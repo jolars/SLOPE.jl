@@ -15,8 +15,8 @@ Extract coefficients from a fitted SLOPE model.
   - When `index=nothing` and `simplify=true`: Returns a 3D array (p×m×path_length) or
     2D matrix (p×path_length) if `m=1`
   - When `index` is specified and `simplify=true`: Returns a vector if `m=1`, otherwise a matrix
-- `refit::Bool=false`: If `true` and `α` is provided, refit the model at the exact alpha value
-  instead of interpolating. Requires that the original data is available (currently not implemented).
+- `refit::Bool=false`: Reserved for future support of exact refitting at a requested alpha.
+  Currently unsupported and will throw an error when used with `α`.
 
 # Returns
 - If `index=nothing` and `α=nothing` and `simplify=false`: Vector of sparse matrices, one per path point

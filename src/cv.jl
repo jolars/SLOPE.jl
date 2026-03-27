@@ -44,6 +44,8 @@ Result structure from SLOPE cross-validation.
 - `best_params::Dict{String,Any}`: Dictionary with the best parameter values
 - `results::Vector{SlopeGridResult}`: Grid search results, of type [`SlopeGridResult`](@ref)
   for each parameter combination
+- `best_fit::Union{SlopeFit,Nothing}`: Final model fitted at the best CV setting on the
+  full dataset when supported (currently when selected `γ ≈ 0`)
 
 """
 struct SlopeCvResult
@@ -53,6 +55,7 @@ struct SlopeCvResult
     best_α_ind::Int
     best_params::Dict{String, Any}
     results::Vector{SlopeGridResult}
+    best_fit::Union{SlopeFit, Nothing}
 end
 
 function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
@@ -64,6 +67,7 @@ function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
     println(io)
     println(io, "Metric: ", cv.metric)
     println(io, "Best score: ", round(cv.best_score, sigdigits = 4))
+    println(io, "Best α: ", round(best_α(cv), sigdigits = 4))
     println(io)
     println(io, "Best parameters:")
     for (key, val) in sort(collect(cv.best_params))
@@ -77,6 +81,7 @@ function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
     println(io, "Grid search:")
     println(io, "  Parameter combinations: ", n_params)
     println(io, "  Alpha values per combination: ", n_alphas)
+    println(io, "  Best model available: ", isnothing(cv.best_fit) ? "No" : "Yes")
 
     # Show summary of all parameter combinations if more than 1
     return if n_params > 1
@@ -101,8 +106,59 @@ function Base.show(io::IO, cv::SlopeCvResult)
     print(io, "SlopeCvResult(")
     print(io, "metric=", cv.metric, ", ")
     print(io, "best_score=", round(cv.best_score, sigdigits = 4), ", ")
+    print(io, "best_α=", round(best_α(cv), sigdigits = 4), ", ")
     print(io, "n_combinations=", length(cv.results))
     return print(io, ")")
+end
+
+"""
+    best_α(cv::SlopeCvResult)
+
+Return the α value selected by cross-validation.
+"""
+function best_α(cv::SlopeCvResult)
+    return cv.results[cv.best_ind].alphas[cv.best_α_ind]
+end
+
+"""
+    best_model(cv::SlopeCvResult)
+
+Return the final model fitted at the cross-validated best parameters.
+
+This model is fitted on the full dataset used in [`slopecv`](@ref), so users do not
+need to pass `x` and `y` again.
+"""
+function best_model(cv::SlopeCvResult)
+    if isnothing(cv.best_fit)
+        throw(
+            ArgumentError(
+                "Best model is unavailable because the selected γ is non-zero. " *
+                    "Final model refitting is currently supported only when γ = 0.0."
+            )
+        )
+    end
+    return cv.best_fit
+end
+
+function _fit_best_model(
+        x::Union{AbstractMatrix, SparseMatrixCSC},
+        y::AbstractVector,
+        λ_input::Union{AbstractVector, Symbol, Nothing},
+        best_q::Real,
+        best_γ::Real,
+        best_α::Real;
+        kwargs...,
+    )
+    if !isapprox(best_γ, 0.0)
+        return nothing
+    end
+
+    return if λ_input isa AbstractVector
+        slope(x, y, α = [best_α], λ = λ_input, kwargs...)
+    else
+        λ_fit = isnothing(λ_input) ? :bh : λ_input
+        slope(x, y, α = [best_α], λ = λ_fit, q = best_q, kwargs...)
+    end
 end
 
 function slopecv_impl(
@@ -242,6 +298,10 @@ result = slopecv(X, y, γ=[0.0, 0.1, 0.5], q=[0.1, 0.05], n_folds=5, metric=:acc
 best_q = result.best_params["q"]
 best_γ = result.best_params["γ"]
 best_score = result.best_score
+best_α = best_α(result)
+
+# Get final model at the selected CV setting
+fit = best_model(result)
 ```
 
 # See Also
@@ -261,6 +321,9 @@ function slopecv(
         metric::Symbol = :mse,
         kwargs...,
     )
+    y_input = y
+    λ_input = λ
+
     params, y, α, λ, original_classes = process_slope_args(
         x,
         y,
@@ -331,15 +394,32 @@ function slopecv(
         start_idx += len
     end
 
-    best_params = grid_results[best_ind + 1].params
+    best_ind_jl = best_ind + 1
+    best_alpha_ind_jl = best_alpha_ind + 1
+
+    best_params = grid_results[best_ind_jl].params
+    best_α = grid_results[best_ind_jl].alphas[best_alpha_ind_jl]
+    best_q = best_params["q"]
+    best_γ = best_params["γ"]
+
+    best_fit = _fit_best_model(
+        x,
+        y_input,
+        λ_input,
+        best_q,
+        best_γ,
+        best_α;
+        kwargs...,
+    )
 
     return SlopeCvResult(
         metric,
         best_score,
-        best_ind,
-        best_alpha_ind,
+        best_ind_jl,
+        best_alpha_ind_jl,
         best_params,
         grid_results,
+        best_fit,
     )
 
 end
