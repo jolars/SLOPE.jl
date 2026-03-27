@@ -79,9 +79,10 @@ end
     @test fit isa SlopeFit
     @test length(fit.α) == 1
     @test isapprox(fit.α[1], best_α(res))
+    @test refit(res, x = x, y = y) isa SlopeFit
 end
 
-@testset "Best model unavailable for γ ≠ 0" begin
+@testset "Best model delegates to refit for γ ≠ 0" begin
     Random.seed!(23)
 
     n = 80
@@ -92,4 +93,68 @@ end
     res = slopecv(x, y, q = [0.1], γ = [1.0], n_folds = 4)
 
     @test_throws ArgumentError best_model(res)
+    @test_throws ArgumentError best_model(res, λ = regweights(p))
+    @test best_model(res, x = x, y = y, λ = regweights(p)) isa SlopeFit
+end
+
+@testset "Refit from CV result" begin
+    Random.seed!(24)
+
+    n = 60
+    p = 8
+    x = randn(n, p)
+    y = x[:, 1] .- 0.5 .* x[:, 2] .+ 0.2 * randn(n)
+
+    res = slopecv(x, y, q = [0.05, 0.1], γ = [0.0], n_folds = 3)
+    fit = refit(res, x = x, y = y)
+
+    @test fit isa SlopeFit
+    @test length(fit.α) == 1
+    @test isapprox(fit.α[1], best_α(res))
+end
+
+@testset "Refit requires explicit x/y" begin
+    Random.seed!(25)
+
+    n = 40
+    p = 5
+    x = randn(n, p)
+    y = randn(n)
+    res = slopecv(x, y, q = [0.1], γ = [0.0], n_folds = 3)
+
+    @test_throws ArgumentError refit(res)
+    @test_throws ArgumentError refit(res, x = x)
+    @test_throws ArgumentError refit(res, y = y)
+end
+
+@testset "Refit validates measure" begin
+    Random.seed!(26)
+
+    x = randn(50, 6)
+    y = randn(50)
+    res = slopecv(x, y, q = [0.1], γ = [0.0], metric = :mse, n_folds = 3)
+
+    @test_throws ArgumentError refit(res, x = x, y = y, measure = :mae)
+end
+
+@testset "Refit behavior for nonzero γ" begin
+    Random.seed!(27)
+
+    n = 50
+    p = 6
+    x = randn(n, p)
+    y = randn(n)
+    λ_override = regweights(p)
+
+    res = slopecv(x, y, q = [0.1], γ = [1.0], n_folds = 3)
+    # Nonzero γ requires explicit λ for refit.
+    @test_throws ArgumentError refit(res)
+
+    fit = refit(res, x = x, y = y, λ = λ_override)
+    @test fit isa SlopeFit
+    @test length(fit.α) == 1
+
+    # User can still override data when passing explicit λ.
+    fit_override = refit(res, x = x, y = y, λ = λ_override)
+    @test fit_override isa SlopeFit
 end

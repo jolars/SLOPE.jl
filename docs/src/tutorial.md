@@ -28,7 +28,7 @@ In the following example, we fit a SLOPE model to the Boston housing dataset
 from the RDatasets package, predicting the crime rate (`Crim`) using all other
 features.
 
-```@example
+```@example boston
 using SLOPE
 using Plots
 using RDatasets
@@ -44,7 +44,7 @@ fit = slope(x, y)
 SLOPE features plotting recipes for visualizing the coefficient paths, so you
 simply call `plot()` on the fitted model after having loaded the Plots package.
 
-```@example
+```@example boston
 plot(fit)
 savefig("plot.svg"); nothing # hide
 ```
@@ -54,7 +54,7 @@ savefig("plot.svg"); nothing # hide
 There are also several convenience functions for working with the fitted model,
 such as `coef()` for extracting coefficients at specific regularization levels.
 
-```@example
+```@example boston
 coef(fit, index=8)
 ```
 
@@ -63,7 +63,7 @@ coef(fit, index=8)
 You can use cross-validation to select tuning parameters and then retrieve a
 final model fitted on the full dataset at the selected setting.
 
-```@example
+```@example boston
 cvfit = slopecv(x, y, q=[0.05, 0.1], γ=[0.0], n_folds=5)
 
 # Selected hyperparameters and alpha
@@ -72,6 +72,9 @@ best_α(cvfit)
 
 # Final model at selected setting
 fit_cv = best_model(cvfit)
+
+# Equivalent explicit refit
+fit_cv2 = refit(cvfit, x = x, y = y)
 ```
 
-Currently, `best_model(cvfit)` is available when the selected `γ` is `0.0`.
+`refit` always requires explicit `x` and `y`.

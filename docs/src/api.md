@@ -30,6 +30,7 @@ object
 SLOPE.slopecv
 SLOPE.best_α
 SLOPE.best_model
+SLOPE.refit
 SLOPE.SlopeGridResult
 SLOPE.SlopeCvResult
 ```

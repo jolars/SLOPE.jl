@@ -28,6 +28,7 @@ export predict
 export coef
 export best_α
 export best_model
+export refit
 
 export SlopeFit
 export SlopeCvResult

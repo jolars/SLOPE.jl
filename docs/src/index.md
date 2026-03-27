@@ -84,9 +84,12 @@ best_α(cvfit)
 
 # Retrieve final model fitted on all data at selected setting
 fit_cv = best_model(cvfit)
+
+# Equivalent explicit refit call
+fit_cv2 = refit(cvfit, x = X, y = y)
 ```
 
-`best_model(cvfit)` is currently available when the selected `γ` value is `0.0`.
+`refit` always requires explicit `x` and `y`.
 
 ### Positioning relative to L1 tooling
 

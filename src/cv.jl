@@ -56,6 +56,8 @@ struct SlopeCvResult
     best_params::Dict{String, Any}
     results::Vector{SlopeGridResult}
     best_fit::Union{SlopeFit, Nothing}
+    λ_input::Union{AbstractVector, Symbol, Nothing}
+    slope_kwargs::Dict{Symbol, Any}
 end
 
 function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
@@ -121,23 +123,39 @@ function best_α(cv::SlopeCvResult)
 end
 
 """
-    best_model(cv::SlopeCvResult)
+    best_model(cv::SlopeCvResult; kwargs...)
 
 Return the final model fitted at the cross-validated best parameters.
 
-This model is fitted on the full dataset used in [`slopecv`](@ref), so users do not
-need to pass `x` and `y` again.
+For `γ == 0`, this returns the cached refit model built from the `slopecv` inputs.
+For other settings, this delegates to [`refit`](@ref), which requires explicit `x` and `y`.
 """
-function best_model(cv::SlopeCvResult)
-    if isnothing(cv.best_fit)
-        throw(
-            ArgumentError(
-                "Best model is unavailable because the selected γ is non-zero. " *
-                    "Final model refitting is currently supported only when γ = 0.0."
-            )
-        )
+function best_model(cv::SlopeCvResult; kwargs...)
+    if isempty(kwargs) && !isnothing(cv.best_fit)
+        return cv.best_fit
     end
-    return cv.best_fit
+    if isempty(kwargs)
+        throw(ArgumentError("`best_model` requires explicit `x` and `y` when no cached model is available."))
+    end
+    return refit(cv; kwargs...)
+end
+
+function _build_refit_kwargs(
+        best_q::Real,
+        best_α::Real,
+        λ_input::Union{AbstractVector, Symbol, Nothing},
+        slope_kwargs::Dict{Symbol, Any},
+    )
+    refit_kwargs = copy(slope_kwargs)
+    refit_kwargs[:α] = best_α
+
+    if λ_input isa AbstractVector
+        refit_kwargs[:λ] = λ_input
+    else
+        refit_kwargs[:λ] = isnothing(λ_input) ? :bh : λ_input
+        refit_kwargs[:q] = best_q
+    end
+    return refit_kwargs
 end
 
 function _fit_best_model(
@@ -146,19 +164,79 @@ function _fit_best_model(
         λ_input::Union{AbstractVector, Symbol, Nothing},
         best_q::Real,
         best_γ::Real,
-        best_α::Real;
-        kwargs...,
+        best_α::Real,
+        slope_kwargs::Dict{Symbol, Any},
     )
-    if !isapprox(best_γ, 0.0)
+    if !isapprox(best_γ, 0.0) && !(λ_input isa AbstractVector)
         return nothing
     end
 
-    return if λ_input isa AbstractVector
-        slope(x, y, α = [best_α], λ = λ_input, kwargs...)
-    else
-        λ_fit = isnothing(λ_input) ? :bh : λ_input
-        slope(x, y, α = [best_α], λ = λ_fit, q = best_q, kwargs...)
+    refit_kwargs = _build_refit_kwargs(best_q, best_α, λ_input, slope_kwargs)
+    return slope(x, y; (pairs(refit_kwargs))...)
+end
+
+"""
+    refit(cv::SlopeCvResult; x, y, measure=nothing, kwargs...)
+
+Refit a SLOPE model using the optimal parameters selected by cross-validation.
+
+# Arguments
+- `cv::SlopeCvResult`: Cross-validation result from [`slopecv`](@ref).
+
+# Keyword Arguments
+- `x`: Design matrix for refitting.
+- `y`: Response vector for refitting.
+- `measure::Union{Symbol,Nothing}=nothing`: Performance measure used to select the
+  optimum. Currently only one measure is stored in `SlopeCvResult`.
+- `kwargs...`: Additional keyword arguments passed to [`slope`](@ref). User-provided
+  keywords override CV-derived defaults.
+
+# Notes
+- `x` and `y` are always required to avoid storing mutable training data in
+  `SlopeCvResult`.
+"""
+function refit(
+        cv::SlopeCvResult;
+        x::Union{AbstractMatrix, SparseMatrixCSC, Nothing} = nothing,
+        y::Union{AbstractVector, Nothing} = nothing,
+        measure::Union{Symbol, Nothing} = nothing,
+        kwargs...,
+    )
+    user_kwargs = Dict{Symbol, Any}(kwargs)
+
+    has_x = !isnothing(x)
+    has_y = !isnothing(y)
+    if xor(has_x, has_y) || (!has_x && !has_y)
+        throw(ArgumentError("Please provide both `x` and `y` to `refit`."))
     end
+
+    selected_measure = isnothing(measure) ? cv.metric : measure
+    if selected_measure != cv.metric
+        throw(
+            ArgumentError(
+                "Measure `$(selected_measure)` not found. Available measures: $(cv.metric)."
+            )
+        )
+    end
+
+    best_γ = cv.best_params["γ"]
+    has_explicit_lambda = haskey(user_kwargs, :λ)
+    if !isapprox(best_γ, 0.0) && !has_explicit_lambda
+        throw(
+            ArgumentError(
+                "Cannot refit for selected γ=$(best_γ) without explicit `λ`. " *
+                "Please pass `λ=...` to `refit`."
+            )
+        )
+    end
+
+    best_q = cv.best_params["q"]
+    refit_kwargs = _build_refit_kwargs(best_q, best_α(cv), cv.λ_input, cv.slope_kwargs)
+    for (k, v) in user_kwargs
+        refit_kwargs[k] = v
+    end
+
+    return slope(x::Union{AbstractMatrix, SparseMatrixCSC}, y::AbstractVector; (pairs(refit_kwargs))...)
 end
 
 function slopecv_impl(
@@ -302,6 +380,9 @@ best_α = best_α(result)
 
 # Get final model at the selected CV setting
 fit = best_model(result)
+
+# Equivalent explicit refit
+fit2 = refit(result, x = X, y = y)
 ```
 
 # See Also
@@ -323,6 +404,7 @@ function slopecv(
     )
     y_input = y
     λ_input = λ
+    slope_kwargs = Dict{Symbol, Any}(kwargs)
 
     params, y, α, λ, original_classes = process_slope_args(
         x,
@@ -408,8 +490,8 @@ function slopecv(
         λ_input,
         best_q,
         best_γ,
-        best_α;
-        kwargs...,
+        best_α,
+        slope_kwargs,
     )
 
     return SlopeCvResult(
@@ -420,6 +502,8 @@ function slopecv(
         best_params,
         grid_results,
         best_fit,
+        λ_input,
+        slope_kwargs,
     )
 
 end
