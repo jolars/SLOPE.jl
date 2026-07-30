@@ -38,13 +38,13 @@ Generates a sequence of regularization weights for the sorted L1 norm.
 ```
 """
 function regweights(
-        p::Int;
-        q::Float64 = 0.1,
-        type::Symbol = :bh,
-        n::Union{Int, Nothing} = nothing,
-        θ1::Real = 1.0,
-        θ2::Real = 1.0,
-    )
+    p::Int;
+    q::Float64 = 0.1,
+    type::Symbol = :bh,
+    n::Union{Int, Nothing} = nothing,
+    θ1::Real = 1.0,
+    θ2::Real = 1.0,
+)
     if p <= 0
         throw(DomainError(p, "p must be positive"))
     end

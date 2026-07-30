@@ -22,25 +22,25 @@ struct SlopeParameters
 end
 
 function process_slope_args(
-        x::Union{AbstractMatrix, SparseMatrixCSC},
-        y::AbstractVector;
-        α::Union{AbstractVector, Real, Nothing} = nothing,
-        λ::Union{AbstractVector, Nothing, Symbol} = :bh,
-        fit_intercept::Bool = true,
-        loss::Symbol = :quadratic,
-        centering::Symbol = :mean,
-        scaling::Symbol = :sd,
-        path_length::Int = 100,
-        tol::Float64 = 1.0e-5,
-        max_it::Int = 10000,
-        q::Float64 = 0.1,
-        max_clusters::Union{Int, Nothing} = nothing,
-        dev_change_tol::Float64 = 1.0e-5,
-        dev_ratio_tol::Float64 = 0.999,
-        α_min_ratio::Union{Float64, Nothing} = nothing,
-        cd_type::Symbol = :permuted,
-        random_seed::Int = 0,
-    )
+    x::Union{AbstractMatrix, SparseMatrixCSC},
+    y::AbstractVector;
+    α::Union{AbstractVector, Real, Nothing} = nothing,
+    λ::Union{AbstractVector, Nothing, Symbol} = :bh,
+    fit_intercept::Bool = true,
+    loss::Symbol = :quadratic,
+    centering::Symbol = :mean,
+    scaling::Symbol = :sd,
+    path_length::Int = 100,
+    tol::Float64 = 1.0e-5,
+    max_it::Int = 10000,
+    q::Float64 = 0.1,
+    max_clusters::Union{Int, Nothing} = nothing,
+    dev_change_tol::Float64 = 1.0e-5,
+    dev_ratio_tol::Float64 = 0.999,
+    α_min_ratio::Union{Float64, Nothing} = nothing,
+    cd_type::Symbol = :permuted,
+    random_seed::Int = 0,
+)
     n, p = size(x)
     m = 1
 
@@ -167,7 +167,7 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
         :quadratic => "gaussian",
         :logistic => "binomial",
         :multinomial => "multinomial",
-        :poisson => "poisson"
+        :poisson => "poisson",
     )
     family = get(family_map, fit.loss, string(fit.loss))
 
@@ -182,7 +182,10 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
     println(io)
     println(io, "Regularization path:")
     println(io, "  Length: ", n_solutions, " steps")
-    println(io, "  Alpha range: ", round(minimum(fit.α), sigdigits = 3), " to ", round(maximum(fit.α), sigdigits = 3))
+    println(io, "  Alpha range: ", round(minimum(fit.α), sigdigits = 3), " to ", round(
+        maximum(fit.α),
+        sigdigits = 3,
+    ))
     println(io)
 
     # Show first and last 5 steps
@@ -206,10 +209,16 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
     return if n_solutions > n_show
         start_idx = max(n_show + 1, n_solutions - n_show + 1)
         for i in start_idx:(n_solutions - 1)
-            println(io, "  ", rpad(round(fit.α[i], sigdigits = 3), 12), rpad(n_nonzero[i], 12))
+            println(io, "  ", rpad(round(fit.α[i], sigdigits = 3), 12), rpad(
+                n_nonzero[i],
+                12,
+            ))
         end
         # Last line without newline
-        print(io, "  ", rpad(round(fit.α[n_solutions], sigdigits = 3), 12), rpad(n_nonzero[n_solutions], 12))
+        print(io, "  ", rpad(round(fit.α[n_solutions], sigdigits = 3), 12), rpad(
+            n_nonzero[n_solutions],
+            12,
+        ))
     end
 end
 
@@ -227,19 +236,19 @@ function Base.show(io::IO, fit::SlopeFit)
 end
 
 function fitslope(
-        x::AbstractMatrix,
-        y,
-        α,
-        λ,
-        params::SlopeParameters,
-        coef_vals,
-        coef_rows,
-        coef_cols,
-        intercepts,
-        nnz,
-        alpha_out,
-        lambda_out,
-    )
+    x::AbstractMatrix,
+    y,
+    α,
+    λ,
+    params::SlopeParameters,
+    coef_vals,
+    coef_rows,
+    coef_cols,
+    intercepts,
+    nnz,
+    alpha_out,
+    lambda_out,
+)
     return SLOPE.fit_slope_dense(
         x,
         y,
@@ -269,24 +278,24 @@ function fitslope(
         intercepts,
         nnz,
         alpha_out,
-        lambda_out
+        lambda_out,
     )
 end
 
 function fitslope(
-        x::SparseMatrixCSC,
-        y,
-        α,
-        λ,
-        params::SlopeParameters,
-        coef_vals,
-        coef_rows,
-        coef_cols,
-        intercepts,
-        nnz,
-        alpha_out,
-        lambda_out,
-    )
+    x::SparseMatrixCSC,
+    y,
+    α,
+    λ,
+    params::SlopeParameters,
+    coef_vals,
+    coef_rows,
+    coef_cols,
+    intercepts,
+    nnz,
+    alpha_out,
+    lambda_out,
+)
 
     return SLOPE.fit_slope_sparse(
         x.colptr,
@@ -319,7 +328,7 @@ function fitslope(
         intercepts,
         nnz,
         alpha_out,
-        lambda_out
+        lambda_out,
     )
 end
 
@@ -405,25 +414,25 @@ fit = slope(x, y, loss=:multinomial)
 ```
 """
 function slope(
-        x::Union{AbstractMatrix, SparseMatrixCSC},
-        y::AbstractVector;
-        α::Union{AbstractVector, Real, Nothing} = nothing,
-        λ::Union{AbstractVector, Nothing, Symbol} = :bh,
-        fit_intercept::Bool = true,
-        loss::Symbol = :quadratic,
-        centering::Symbol = :mean,
-        scaling::Symbol = :sd,
-        path_length::Int = 100,
-        tol::Float64 = 1.0e-5,
-        max_it::Int = 10000,
-        q::Float64 = 0.1,
-        max_clusters::Union{Int, Nothing} = nothing,
-        dev_change_tol::Float64 = 1.0e-5,
-        dev_ratio_tol::Float64 = 0.999,
-        α_min_ratio::Union{Float64, Nothing} = nothing,
-        cd_type::Symbol = :permuted,
-        random_seed::Int = 0,
-    )
+    x::Union{AbstractMatrix, SparseMatrixCSC},
+    y::AbstractVector;
+    α::Union{AbstractVector, Real, Nothing} = nothing,
+    λ::Union{AbstractVector, Nothing, Symbol} = :bh,
+    fit_intercept::Bool = true,
+    loss::Symbol = :quadratic,
+    centering::Symbol = :mean,
+    scaling::Symbol = :sd,
+    path_length::Int = 100,
+    tol::Float64 = 1.0e-5,
+    max_it::Int = 10000,
+    q::Float64 = 0.1,
+    max_clusters::Union{Int, Nothing} = nothing,
+    dev_change_tol::Float64 = 1.0e-5,
+    dev_ratio_tol::Float64 = 0.999,
+    α_min_ratio::Union{Float64, Nothing} = nothing,
+    cd_type::Symbol = :permuted,
+    random_seed::Int = 0,
+)
 
     params, y, α, λ, original_classes = process_slope_args(
         x,
@@ -478,7 +487,7 @@ function slope(
 
     if !isempty(intercepts)
         # Reshape into a matrix and convert each row to a vector
-        intercept_matrix = reshape(intercepts, params.m, :)'  # path_length × m matrix
+        intercept_matrix = reshape(intercepts, params.m, :)' # path_length × m matrix
         for i in axes(intercept_matrix, 1)
             push!(intercept_vectors, intercept_matrix[i, :])
         end
@@ -492,7 +501,13 @@ function slope(
         end
 
         rng = ind:nnz[i]
-        coefs_step = sparse(coef_rows[rng], coef_cols[rng], coef_vals[rng], params.p, params.m)
+        coefs_step = sparse(
+            coef_rows[rng],
+            coef_cols[rng],
+            coef_vals[rng],
+            params.p,
+            params.m,
+        )
         push!(coefs, coefs_step)
         ind = nnz[i] + 1
     end
@@ -504,7 +519,7 @@ function slope(
         lambda_out,
         params.m,
         loss,
-        original_classes
+        original_classes,
     )
 end
 

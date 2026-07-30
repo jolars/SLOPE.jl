@@ -93,11 +93,29 @@ function Base.show(io::IO, ::MIME"text/plain", cv::SlopeCvResult)
             best_score_for_combo = minimum(result.scores_means)
             marker = i == cv.best_ind ? " *" : ""
             print(io, "  ", i, ". ")
-            param_str = join(["$(k)=$(round(v, sigdigits = 3))" for (k, v) in sort(collect(result.params))], ", ")
+            param_str = join(
+                [
+                    "$(k)=$(round(v, sigdigits = 3))"
+                    for (k, v) in sort(collect(result.params))
+                ],
+                ", ",
+            )
             if i < n_params
-                println(io, param_str, ": ", round(best_score_for_combo, sigdigits = 4), marker)
+                println(
+                    io,
+                    param_str,
+                    ": ",
+                    round(best_score_for_combo, sigdigits = 4),
+                    marker,
+                )
             else
-                print(io, param_str, ": ", round(best_score_for_combo, sigdigits = 4), marker)
+                print(
+                    io,
+                    param_str,
+                    ": ",
+                    round(best_score_for_combo, sigdigits = 4),
+                    marker,
+                )
             end
         end
     end
@@ -135,17 +153,19 @@ function best_model(cv::SlopeCvResult; kwargs...)
         return cv.best_fit
     end
     if isempty(kwargs)
-        throw(ArgumentError("`best_model` requires explicit `x` and `y` when no cached model is available."))
+        throw(ArgumentError(
+            "`best_model` requires explicit `x` and `y` when no cached model is available.",
+        ))
     end
     return refit(cv; kwargs...)
 end
 
 function _build_refit_kwargs(
-        best_q::Real,
-        best_α::Real,
-        λ_input::Union{AbstractVector, Symbol, Nothing},
-        slope_kwargs::Dict{Symbol, Any},
-    )
+    best_q::Real,
+    best_α::Real,
+    λ_input::Union{AbstractVector, Symbol, Nothing},
+    slope_kwargs::Dict{Symbol, Any},
+)
     refit_kwargs = copy(slope_kwargs)
     refit_kwargs[:α] = best_α
 
@@ -159,14 +179,14 @@ function _build_refit_kwargs(
 end
 
 function _fit_best_model(
-        x::Union{AbstractMatrix, SparseMatrixCSC},
-        y::AbstractVector,
-        λ_input::Union{AbstractVector, Symbol, Nothing},
-        best_q::Real,
-        best_γ::Real,
-        best_α::Real,
-        slope_kwargs::Dict{Symbol, Any},
-    )
+    x::Union{AbstractMatrix, SparseMatrixCSC},
+    y::AbstractVector,
+    λ_input::Union{AbstractVector, Symbol, Nothing},
+    best_q::Real,
+    best_γ::Real,
+    best_α::Real,
+    slope_kwargs::Dict{Symbol, Any},
+)
     if !isapprox(best_γ, 0.0) && !(λ_input isa AbstractVector)
         return nothing
     end
@@ -196,12 +216,12 @@ Refit a SLOPE model using the optimal parameters selected by cross-validation.
   `SlopeCvResult`.
 """
 function refit(
-        cv::SlopeCvResult;
-        x::Union{AbstractMatrix, SparseMatrixCSC, Nothing} = nothing,
-        y::Union{AbstractVector, Nothing} = nothing,
-        measure::Union{Symbol, Nothing} = nothing,
-        kwargs...,
-    )
+    cv::SlopeCvResult;
+    x::Union{AbstractMatrix, SparseMatrixCSC, Nothing} = nothing,
+    y::Union{AbstractVector, Nothing} = nothing,
+    measure::Union{Symbol, Nothing} = nothing,
+    kwargs...,
+)
     user_kwargs = Dict{Symbol, Any}(kwargs)
 
     has_x = !isnothing(x)
@@ -212,22 +232,18 @@ function refit(
 
     selected_measure = isnothing(measure) ? cv.metric : measure
     if selected_measure != cv.metric
-        throw(
-            ArgumentError(
-                "Measure `$(selected_measure)` not found. Available measures: $(cv.metric)."
-            )
-        )
+        throw(ArgumentError(
+            "Measure `$(selected_measure)` not found. Available measures: $(cv.metric).",
+        ))
     end
 
     best_γ = cv.best_params["γ"]
     has_explicit_lambda = haskey(user_kwargs, :λ)
     if !isapprox(best_γ, 0.0) && !has_explicit_lambda
-        throw(
-            ArgumentError(
-                "Cannot refit for selected γ=$(best_γ) without explicit `λ`. " *
-                "Please pass `λ=...` to `refit`."
-            )
-        )
+        throw(ArgumentError(
+            "Cannot refit for selected γ=$(best_γ) without explicit `λ`. " *
+                "Please pass `λ=...` to `refit`.",
+        ))
     end
 
     best_q = cv.best_params["q"]
@@ -236,17 +252,21 @@ function refit(
         refit_kwargs[k] = v
     end
 
-    return slope(x::Union{AbstractMatrix, SparseMatrixCSC}, y::AbstractVector; (pairs(refit_kwargs))...)
+    return slope(
+        x::Union{AbstractMatrix, SparseMatrixCSC},
+        y::AbstractVector;
+        (pairs(refit_kwargs))...,
+    )
 end
 
 function slopecv_impl(
-        x::AbstractMatrix,
-        y,
-        α,
-        λ,
-        params::SlopeParameters,
-        cv_params::SlopeCvParameters,
-    )
+    x::AbstractMatrix,
+    y,
+    α,
+    λ,
+    params::SlopeParameters,
+    cv_params::SlopeCvParameters,
+)
 
     return SLOPE.cv_slope_dense(
         x,
@@ -281,13 +301,13 @@ function slopecv_impl(
 end
 
 function slopecv_impl(
-        x::SparseMatrixCSC,
-        y,
-        α,
-        λ,
-        params::SlopeParameters,
-        cv_params::SlopeCvParameters,
-    )
+    x::SparseMatrixCSC,
+    y,
+    α,
+    λ,
+    params::SlopeParameters,
+    cv_params::SlopeCvParameters,
+)
 
     return SLOPE.cv_slope_sparse(
         x.colptr,
@@ -391,28 +411,22 @@ fit2 = refit(result, x = X, y = y)
 
 """
 function slopecv(
-        x::Union{AbstractMatrix, SparseMatrixCSC},
-        y::AbstractVector;
-        α::Union{AbstractVector, Real, Nothing} = nothing,
-        λ::Union{AbstractVector, Symbol, Nothing} = :bh,
-        γ::Union{AbstractVector, Real} = [0.0],
-        q::Union{AbstractVector} = [0.1],
-        n_folds::Int = 10,
-        n_repeats::Int = 1,
-        metric::Symbol = :mse,
-        kwargs...,
-    )
+    x::Union{AbstractMatrix, SparseMatrixCSC},
+    y::AbstractVector;
+    α::Union{AbstractVector, Real, Nothing} = nothing,
+    λ::Union{AbstractVector, Symbol, Nothing} = :bh,
+    γ::Union{AbstractVector, Real} = [0.0],
+    q::Union{AbstractVector} = [0.1],
+    n_folds::Int = 10,
+    n_repeats::Int = 1,
+    metric::Symbol = :mse,
+    kwargs...,
+)
     y_input = y
     λ_input = λ
     slope_kwargs = Dict{Symbol, Any}(kwargs)
 
-    params, y, α, λ, original_classes = process_slope_args(
-        x,
-        y,
-        α = α,
-        λ = λ,
-        kwargs...,
-    )
+    params, y, α, λ, original_classes = process_slope_args(x, y, α = α, λ = λ, kwargs...)
 
     fold_indices = Int[]
 
@@ -421,14 +435,7 @@ function slopecv(
         fold_indices = vcat(fold_indices, idx)
     end
 
-    cv_params = SlopeCvParameters(
-        γ,
-        q,
-        n_folds,
-        n_repeats,
-        metric,
-        fold_indices
-    )
+    cv_params = SlopeCvParameters(γ, q, n_folds, n_repeats, metric, fold_indices)
 
     (
         best_score,
@@ -484,15 +491,7 @@ function slopecv(
     best_q = best_params["q"]
     best_γ = best_params["γ"]
 
-    best_fit = _fit_best_model(
-        x,
-        y_input,
-        λ_input,
-        best_q,
-        best_γ,
-        best_α,
-        slope_kwargs,
-    )
+    best_fit = _fit_best_model(x, y_input, λ_input, best_q, best_γ, best_α, slope_kwargs)
 
     return SlopeCvResult(
         metric,

@@ -35,7 +35,12 @@ end
     res_sparse = slope(x, y)
     res_dense = slope(Matrix(x), y)
 
-    @test isapprox(res_dense.coefficients, res_sparse.coefficients, atol = 1.0e-7, rtol = 1.0e-4)
+    @test isapprox(
+        res_dense.coefficients,
+        res_sparse.coefficients,
+        atol = 1.0e-7,
+        rtol = 1.0e-4,
+    )
 end
 
 @testset "Predictions" begin

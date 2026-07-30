@@ -51,7 +51,7 @@ using Random
         @test isa(all_coefs[1], SparseArrays.SparseMatrixCSC)
         p_size, m_size = size(all_coefs[1])
         @test p_size == p
-        @test m_size > 1  # Multinomial has multiple responses
+        @test m_size > 1 # Multinomial has multiple responses
 
         # Test specific index
         coef_idx = coef(fit, index = 1)
@@ -104,9 +104,9 @@ using Random
             if coef1[i] != coef2[i]
                 min_val = min(coef1[i], coef2[i])
                 max_val = max(coef1[i], coef2[i])
-                @test min_val <= coef_interp[i] <= max_val || 
-                      isapprox(coef_interp[i], min_val, atol=1e-10) || 
-                      isapprox(coef_interp[i], max_val, atol=1e-10)
+                @test min_val <= coef_interp[i] <= max_val ||
+                    isapprox(coef_interp[i], min_val, atol = 1.0e-10) ||
+                    isapprox(coef_interp[i], max_val, atol = 1.0e-10)
             end
         end
 

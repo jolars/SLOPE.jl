@@ -56,18 +56,21 @@ coef_array = coef(fit_multi, simplify=true)  # Returns p×m×path_length array
 ```
 """
 function coef(
-        fit::SlopeFit; index::Union{Int, Nothing} = nothing,
-        α::Union{Real, Nothing} = nothing,
-        simplify::Bool = false,
-        refit::Bool = false
-    )
+    fit::SlopeFit;
+    index::Union{Int, Nothing} = nothing,
+    α::Union{Real, Nothing} = nothing,
+    simplify::Bool = false,
+    refit::Bool = false,
+)
 
     if !isnothing(index) && !isnothing(α)
         throw(ArgumentError("Cannot specify both `index` and `α`. Choose one."))
     end
 
     if refit && !isnothing(α)
-        throw(ArgumentError("`refit=true` is not yet implemented. Only interpolation is supported."))
+        throw(ArgumentError(
+            "`refit=true` is not yet implemented. Only interpolation is supported.",
+        ))
     end
 
     # Handle alpha parameter
@@ -97,7 +100,9 @@ function coef(
         end
     elseif isa(index, Int)
         if index < 1 || index > path_length
-            throw(BoundsError("Index $index out of bounds. Must be between 1 and $path_length."))
+            throw(BoundsError(
+                "Index $index out of bounds. Must be between 1 and $path_length.",
+            ))
         end
 
         coefs_at_index = coefs[index]
@@ -117,7 +122,9 @@ function _coef_at_alpha(fit::SlopeFit, alpha::Real, simplify::Bool)
     alphas = fit.α
 
     if alpha < minimum(alphas) || alpha > maximum(alphas)
-        throw(ArgumentError("alpha=$alpha is outside the fitted path range [$(minimum(alphas)), $(maximum(alphas))]"))
+        throw(ArgumentError(
+            "alpha=$alpha is outside the fitted path range [$(minimum(alphas)), $(maximum(alphas))]",
+        ))
     end
 
     # Check if alpha is exactly in the path
