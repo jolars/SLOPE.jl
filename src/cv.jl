@@ -426,7 +426,7 @@ function slopecv(
     λ_input = λ
     slope_kwargs = Dict{Symbol, Any}(kwargs)
 
-    params, y, α, λ, original_classes = process_slope_args(x, y, α = α, λ = λ, kwargs...)
+    params, y, α, λ, _ = process_slope_args(x, y, α = α, λ = λ, kwargs...)
 
     fold_indices = Int[]
 
