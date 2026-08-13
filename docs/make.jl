@@ -7,8 +7,11 @@ makedocs_kwargs = Dict{Symbol, Any}(
     :sitename => "SLOPE",
     :format => Documenter.HTML(assets = ["assets/favicon.ico"], prettyurls = is_ci),
     :modules => [SLOPE],
-    :pages =>
-        ["Home" => "index.md", "Tutorial" => "tutorial.md", "API Reference" => "api.md"],
+    :pages => [
+        "Home" => "index.md",
+        "Tutorial" => "tutorial.md",
+        "API Reference" => "api.md",
+    ],
 )
 
 # Disable source links locally to avoid NixOS git issues
