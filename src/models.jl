@@ -182,10 +182,13 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
     println(io)
     println(io, "Regularization path:")
     println(io, "  Length: ", n_solutions, " steps")
-    println(io, "  Alpha range: ", round(minimum(fit.α), sigdigits = 3), " to ", round(
-        maximum(fit.α),
-        sigdigits = 3,
-    ))
+    println(
+        io,
+        "  Alpha range: ",
+        round(minimum(fit.α), sigdigits = 3),
+        " to ",
+        round(maximum(fit.α), sigdigits = 3),
+    )
     println(io)
 
     # Show first and last 5 steps
@@ -209,16 +212,20 @@ function Base.show(io::IO, ::MIME"text/plain", fit::SlopeFit)
     return if n_solutions > n_show
         start_idx = max(n_show + 1, n_solutions - n_show + 1)
         for i in start_idx:(n_solutions - 1)
-            println(io, "  ", rpad(round(fit.α[i], sigdigits = 3), 12), rpad(
-                n_nonzero[i],
-                12,
-            ))
+            println(
+                io,
+                "  ",
+                rpad(round(fit.α[i], sigdigits = 3), 12),
+                rpad(n_nonzero[i], 12),
+            )
         end
         # Last line without newline
-        print(io, "  ", rpad(round(fit.α[n_solutions], sigdigits = 3), 12), rpad(
-            n_nonzero[n_solutions],
-            12,
-        ))
+        print(
+            io,
+            "  ",
+            rpad(round(fit.α[n_solutions], sigdigits = 3), 12),
+            rpad(n_nonzero[n_solutions], 12),
+        )
     end
 end
 
