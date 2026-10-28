@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jolars/versionary/main/schemas/config.json",
+  "version": 1,
+  "release-type": "julia",
+  "review-mode": "pr",
+  "release-mode": "external",
+  "allow-stable-major": true,
+  "bootstrap-sha": "14d2192879c72180a0fb92c661c61a064eedf572"
+}
