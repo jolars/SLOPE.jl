@@ -4,8 +4,7 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
 [![Build
 Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
-[![Software
-DOI](https://img.shields.io/badge/Software_DOI-10.5281%2Fzenodo.17865903-blue)](https://doi.org/10.5281/zenodo.17865903)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.17865903-blue)](https://doi.org/10.5281/zenodo.17865903)
 
 SLOPE is a Julia package for fitting the Sorted L-One Penalized
 Estimation (SLOPE) model, which is a regularization technique for
