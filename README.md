@@ -1,12 +1,11 @@
-<!-- README.md is generated from README.qmd. Please edit that file -->
-
 # SLOPE <a href="https://jolars.github.io/SLOPE.jl/"><img src='docs/src/assets/logo.png' align="right" height="139" /></a>
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://jolars.github.io/SLOPE.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jolars.github.io/SLOPE.jl/dev)
 [![Build
 Status](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/jolars/SLOPE.jl/actions/workflows/build-and-test.yml?query=branch%3Amain)
-[![DOI](https://zenodo.org/badge/983942467.svg)](https://doi.org/10.5281/zenodo.17865903)
+[![Software
+DOI](https://img.shields.io/badge/Software_DOI-10.5281%2Fzenodo.17865903-blue)](https://doi.org/10.5281/zenodo.17865903)
 
 SLOPE is a Julia package for fitting the Sorted L-One Penalized
 Estimation (SLOPE) model, which is a regularization technique for
@@ -69,6 +68,19 @@ SLOPE is also available as a
 - Python package: [sortedl1](https://pypi.org/project/sortedl1/)
 - R package: [SLOPE](https://cran.r-project.org/package=SLOPE)
 - C++ library: [libslope](https://github.com/jolars/libslope)
+
+## Citation
+
+If you use SLOPE.jl in your research, please cite [Efficient Solvers for SLOPE
+in R, Python, Julia, and C++](https://doi.org/10.48550/arXiv.2511.02430).
+
+For reproducibility, also cite the software release you used. Select that
+release in the [Zenodo archive](https://doi.org/10.5281/zenodo.17865903) and
+export its citation. The concept DOI `10.5281/zenodo.17865903` identifies
+SLOPE.jl across all releases.
+
+Machine-readable software metadata and the preferred paper citation are
+available in [CITATION.cff](CITATION.cff).
 
 ## Contributing
 
