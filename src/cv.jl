@@ -146,7 +146,8 @@ end
 Return the final model fitted at the cross-validated best parameters.
 
 For `γ == 0`, this returns the cached refit model built from the `slopecv` inputs.
-For other settings, this delegates to [`refit`](@ref), which requires explicit `x` and `y`.
+When given keyword arguments or when a cached model is unavailable, this delegates
+to [`refit`](@ref), which requires explicit `x` and `y`.
 """
 function best_model(cv::SlopeCvResult; kwargs...)
     if isempty(kwargs) && !isnothing(cv.best_fit)
@@ -206,10 +207,14 @@ Refit a SLOPE model using the optimal parameters selected by cross-validation.
 # Keyword Arguments
 - `x`: Design matrix for refitting.
 - `y`: Response vector for refitting.
+- `weights` defaults to the weights saved by `slopecv`. Supply weights in the
+  order of the refit rows if they differ from the original rows. Pass `nothing`
+  for an unweighted refit.
 - `measure::Union{Symbol,Nothing}=nothing`: Performance measure used to select the
   optimum. Currently only one measure is stored in `SlopeCvResult`.
 - `kwargs...`: Additional keyword arguments passed to [`slope`](@ref). User-provided
-  keywords override CV-derived defaults.
+  keywords override CV-derived defaults. To refit with `alpha_scale=:relative`,
+  supply `α` explicitly because cross-validation returns absolute alpha values.
 
 # Notes
 - `x` and `y` are always required to avoid storing mutable training data in
@@ -223,6 +228,9 @@ function refit(
     kwargs...,
 )
     user_kwargs = Dict{Symbol, Any}(kwargs)
+    if get(user_kwargs, :alpha_scale, :absolute) === :relative && !haskey(user_kwargs, :α)
+        throw(ArgumentError("supply α explicitly when refitting with alpha_scale=:relative"))
+    end
 
     has_x = !isnothing(x)
     has_y = !isnothing(y)
@@ -266,9 +274,13 @@ function slopecv_impl(
     λ,
     params::SlopeParameters,
     cv_params::SlopeCvParameters,
+    weights,
 )
 
-    return SLOPE.cv_slope_dense(
+    return call_slope_binding(
+        SLOPE.cv_slope_dense,
+        SLOPE.cv_slope_dense_weighted,
+        weights,
         x,
         y,
         α,
@@ -307,9 +319,13 @@ function slopecv_impl(
     λ,
     params::SlopeParameters,
     cv_params::SlopeCvParameters,
+    weights,
 )
 
-    return SLOPE.cv_slope_sparse(
+    return call_slope_binding(
+        SLOPE.cv_slope_sparse,
+        SLOPE.cv_slope_sparse_weighted,
+        weights,
         x.colptr,
         x.rowval,
         x.nzval,
@@ -347,6 +363,7 @@ end
     slopecv(
       x,
       y;
+      weights=nothing,
       α=nothing,
       λ=:bh,
       γ=[0.0],
@@ -366,6 +383,9 @@ Perform cross-validation for SLOPE to find optimal hyperparameters.
 
 # Keyword Arguments
 
+- `weights=nothing` accepts an optional vector of observation weights as in [`slope`](@ref).
+  Weights apply to fitting and scoring. Each training and validation subset must
+  have positive total weight. The result saves a copy for refitting.
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: SLOPE regularization path. If `nothing`, it's automatically generated.
 - `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Sequence of regularization
   parameters. If `nothing`, it uses the default BH sequence (`:bh`).
@@ -413,6 +433,7 @@ fit2 = refit(result, x = X, y = y)
 function slopecv(
     x::Union{AbstractMatrix, SparseMatrixCSC},
     y::AbstractVector;
+    weights::Union{AbstractVector{<:Real}, Nothing} = nothing,
     α::Union{AbstractVector, Real, Nothing} = nothing,
     λ::Union{AbstractVector, Symbol, Nothing} = :bh,
     γ::Union{AbstractVector, Real} = [0.0],
@@ -425,8 +446,12 @@ function slopecv(
     y_input = y
     λ_input = λ
     slope_kwargs = Dict{Symbol, Any}(kwargs)
+    observation_weights = prepare_observation_weights(weights, size(x, 1), λ)
+    if !isnothing(observation_weights)
+        slope_kwargs[:weights] = observation_weights
+    end
 
-    params, y, α, λ, _ = process_slope_args(x, y, α = α, λ = λ, kwargs...)
+    params, y, α, λ, _ = process_slope_args(x, y; α, λ, kwargs...)
 
     fold_indices = Int[]
 
@@ -448,7 +473,7 @@ function slopecv(
         alphas,
         mean_scores,
         std_errors,
-    ) = slopecv_impl(x, y, α, λ, params, cv_params)
+    ) = slopecv_impl(x, y, α, λ, params, cv_params, observation_weights)
 
     start_idx = 1
 

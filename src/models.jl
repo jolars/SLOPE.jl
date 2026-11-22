@@ -242,6 +242,31 @@ function Base.show(io::IO, fit::SlopeFit)
     return print(io, ")")
 end
 
+function prepare_observation_weights(weights, n::Int, λ)
+    isnothing(weights) && return nothing
+    length(weights) == n || throw(DimensionMismatch("weights must have one entry per row of x"))
+
+    observation_weights = collect(Float64, weights)
+    if !all(>=(0), weights) || !all(isfinite, observation_weights)
+        throw(ArgumentError("weights must be finite and nonnegative"))
+    end
+    if !any(>(0), observation_weights)
+        throw(ArgumentError("at least one observation weight must be positive"))
+    end
+    if λ === :gaussian && !all(==(first(observation_weights)), observation_weights)
+        throw(ArgumentError("λ=:gaussian requires uniform observation weights"))
+    end
+
+    return observation_weights
+end
+
+function call_slope_binding(unweighted, weighted, weights, args...)
+    if isnothing(weights)
+        return unweighted(args...)
+    end
+    return weighted(args..., weights)
+end
+
 function fitslope(
     x::AbstractMatrix,
     y,
@@ -255,8 +280,13 @@ function fitslope(
     nnz,
     alpha_out,
     lambda_out,
+    weights,
+    path_length,
 )
-    return SLOPE.fit_slope_dense(
+    return call_slope_binding(
+        SLOPE.fit_slope_dense,
+        SLOPE.fit_slope_dense_weighted,
+        weights,
         x,
         y,
         α,
@@ -269,7 +299,7 @@ function fitslope(
         String(params.λtype),
         String(params.centering),
         String(params.scaling),
-        params.path_length,
+        path_length,
         params.tol,
         params.max_it,
         params.q,
@@ -302,9 +332,14 @@ function fitslope(
     nnz,
     alpha_out,
     lambda_out,
+    weights,
+    path_length,
 )
 
-    return SLOPE.fit_slope_sparse(
+    return call_slope_binding(
+        SLOPE.fit_slope_sparse,
+        SLOPE.fit_slope_sparse_weighted,
+        weights,
         x.colptr,
         x.rowval,
         x.nzval,
@@ -319,7 +354,7 @@ function fitslope(
         String(params.λtype),
         String(params.centering),
         String(params.scaling),
-        params.path_length,
+        path_length,
         params.tol,
         params.max_it,
         params.q,
@@ -339,6 +374,31 @@ function fitslope(
     )
 end
 
+function fit_slope_path(x, y, α, λ, params, weights; path_length = params.path_length)
+    outputs = (
+        coef_vals = Float64[],
+        coef_rows = Int[],
+        coef_cols = Int[],
+        intercepts = Float64[],
+        nnz = Int[],
+        alpha_out = Float64[],
+        lambda_out = Float64[],
+    )
+    fitslope(x, y, α, λ, params, outputs..., weights, path_length)
+    return outputs
+end
+
+function relative_alpha_path(x, y, α, λ, params, weights)
+    fractions = collect(Float64, α)
+    if !all(isfinite, fractions) || !all(>=(0), α) || !issorted(α; rev = true)
+        throw(ArgumentError("relative alpha values must be finite, nonnegative, and nonincreasing"))
+    end
+
+    # A one-point automatic path gives the native null-model threshold.
+    null_model = fit_slope_path(x, y, Float64[], λ, params, weights; path_length = 1)
+    return fractions .* only(null_model.alpha_out)
+end
+
 """
     slope(x, y; kwargs...) -> SlopeFit
 
@@ -352,8 +412,15 @@ encouraging both sparsity and grouping of features.
 - `y`: Response variable (vector)
 
 # Keyword Arguments
+- `weights=nothing` accepts an optional vector of observation weights, one per row of `x`.
+  Weights must be finite and nonnegative, with at least one positive entry. Zero
+  weights exclude rows from the objective and from predictor centering and scaling.
+  `λ=:gaussian` requires uniform weights.
 - `α::Union{AbstractVector,Real,Nothing}=nothing`: Alpha sequence for regularization path.
   If `nothing`, a sequence is automatically generated.
+- `alpha_scale::Symbol=:absolute` controls the interpretation of supplied `α` values.
+  With `:relative`, `1.0` is the null-model threshold for the current data, weights,
+  and penalty sequence. Automatic paths and the returned `fit.α` use absolute values.
 - `λ::Union{AbstractVector,Symbol,Nothing}=:bh`: Lambda (penalty weights) sequence. Can
   be a vector of custom weights, or a symbol specifying the sequence type:
   - `:bh`: Benjamini-Hochberg sequence
@@ -423,7 +490,9 @@ fit = slope(x, y, loss=:multinomial)
 function slope(
     x::Union{AbstractMatrix, SparseMatrixCSC},
     y::AbstractVector;
+    weights::Union{AbstractVector{<:Real}, Nothing} = nothing,
     α::Union{AbstractVector, Real, Nothing} = nothing,
+    alpha_scale::Symbol = :absolute,
     λ::Union{AbstractVector, Nothing, Symbol} = :bh,
     fit_intercept::Bool = true,
     loss::Symbol = :quadratic,
@@ -440,7 +509,8 @@ function slope(
     cd_type::Symbol = :permuted,
     random_seed::Int = 0,
 )
-
+    alpha_scale in (:absolute, :relative) || throw(ArgumentError("alpha_scale must be :absolute or :relative"))
+    observation_weights = prepare_observation_weights(weights, size(x, 1), λ)
     params, y, α, λ, original_classes = process_slope_args(
         x,
         y,
@@ -462,30 +532,11 @@ function slope(
         random_seed = random_seed,
     )
 
-    coef_vals = Float64[]
-    coef_rows = Int[]
-    coef_cols = Int[]
-    nnz = Int[]
-
-    intercepts = Float64[]
-
-    alpha_out = Float64[]
-    lambda_out = Float64[]
-
-    fitslope(
-        x,
-        y,
-        α,
-        λ,
-        params,
-        coef_vals,
-        coef_rows,
-        coef_cols,
-        intercepts,
-        nnz,
-        alpha_out,
-        lambda_out,
-    )
+    if alpha_scale === :relative && !isempty(α)
+        α = relative_alpha_path(x, y, α, λ, params, observation_weights)
+    end
+    coef_vals, coef_rows, coef_cols, intercepts, nnz, alpha_out, lambda_out =
+        fit_slope_path(x, y, α, λ, params, observation_weights)
 
     ind = 1
 

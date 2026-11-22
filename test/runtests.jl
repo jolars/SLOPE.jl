@@ -26,6 +26,12 @@ using Aqua
     @testset "Regularization Weights" begin
         include("regweights.jl")
     end
+    @testset "Observation Weights" begin
+        include("observation_weights.jl")
+    end
+    @testset "Alpha Scale" begin
+        include("alpha_scale.jl")
+    end
 
     @testset "Coefficients" begin
         include("coef.jl")
